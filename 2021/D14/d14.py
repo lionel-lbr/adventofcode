@@ -46,9 +46,6 @@ def run(maxNumberOfSteps):
   # get min & max occurence
   mostCommonCount = topCounter.most_common()[0][1]
   leastCommonCount = topCounter.most_common().pop()[1] # last of the list ...
-
-  print(mostCommonCount, leastCommonCount)
-  print(mostCommonCount - leastCommonCount)
   return mostCommonCount - leastCommonCount
 
 # read puzzle input
@@ -58,5 +55,5 @@ insertionRules = dict([l.strip('\n').split(' -> ') for l in lines])
 
 input = "FPNFCVSNNFSFHHOCNBOB"
 
-print("solution for AdventOfCode D14 part 1:", run(10))
-print("solution for AdventOfCode D14 part 2:", run(40))
+print("AdventOfCode 2021 D14 part 1:", run(10))
+print("AdventOfCode 2021 D14 part 2:", run(40))
