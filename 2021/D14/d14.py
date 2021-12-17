@@ -45,7 +45,7 @@ def run(maxNumberOfSteps):
 
   # get min & max occurence
   mostCommonCount = topCounter.most_common()[0][1]
-  leastCommonCount = topCounter.most_common().pop()[1] # last of the list ...
+  leastCommonCount = topCounter.most_common()[-1][1] # last of the list ...
   return mostCommonCount - leastCommonCount
 
 # read puzzle input
