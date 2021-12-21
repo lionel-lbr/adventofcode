@@ -2,7 +2,7 @@
 Advent Of Code 2021
 Day 5: Hydrothermal Venture part 2
 
-https://adventofcode.com/2021/day/15 
+https://adventofcode.com/2021/day/5 
 """
 with open("2021/D5/d5-input.txt") as f:
     lines = f.readlines()
