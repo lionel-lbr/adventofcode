@@ -8,7 +8,7 @@ def part1():
   with open("2021/D8/d8-input.txt") as f:
     lines = f.readlines()
   count = sum([1 for sublist in [l.strip("\n").split('|')[1].strip(" ").split(" ") \
-    for l in lines] for s in sublist if len(s) in [2, 4, 3, 7]])
+  for l in lines] for s in sublist if len(s) in [2, 4, 3, 7]])
   return count
 
 #     1
