@@ -2,7 +2,7 @@
 Advent Of Code 2021
 Day 20: Trench Map part 1 & 2
 
-https://adventofcode.com/2021/day/16 
+https://adventofcode.com/2021/day/20 
 """
 
 with open("2021/D20/d20-input.txt") as f:
