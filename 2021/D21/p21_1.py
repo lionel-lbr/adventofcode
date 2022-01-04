@@ -9,10 +9,10 @@ SCORE = 1
 
 DICE_THROW = [i for i in range(1, 101)]
 
-def movePlayer(p, dice):
+def rollDiceAndMovePlayer(p, dice):
   # roll dice
   r = 0
-  for i in range(3):
+  for _ in range(3):
     r += DICE_THROW[dice]
     dice = (dice + 1) % 100
         
@@ -27,7 +27,7 @@ def solve(players):
   nbrOfRolls = 0
   activePlayer = 0
   while True:
-    dice = movePlayer(players[activePlayer], dice)
+    dice = rollDiceAndMovePlayer(players[activePlayer], dice)
     nbrOfRolls += 3
     if players[activePlayer][SCORE] >= 1000:
       break

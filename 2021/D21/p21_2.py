@@ -13,19 +13,23 @@ SCORE = 1
 @lru_cache(maxsize=None)
 def runOneUniverse(players, activePlayer):
   winners = [0, 0]
-  for dice in product([1,2,3], repeat = 3):
-    r = sum(dice)  
 
-    p = [list(players[0]), list(players[1])]
+  # iterate over each possible combinaison of the dice
+  for dice in product([1,2,3], repeat = 3):
+    r = sum(dice)
+    # create a new player copy to play in this universe
+    p = [list(p) for p in players]
     pos = (p[activePlayer][POS] + r) % 10
     p[activePlayer][POS] = 10 if pos == 0 else pos
     p[activePlayer][SCORE] += p[activePlayer][POS]
 
     if p[activePlayer][SCORE] >= 21:
-      winners[activePlayer]+=1
+      # one player one, stop recursion (terminate this universe)
+      winners[activePlayer] += 1
     else: 
-      # recurse and swap player ..
+      # Swap player and recurse ..
       w = runOneUniverse((tuple(p[0]), tuple(p[1])), (activePlayer+1)%2)
+      # addup each player previous result 
       winners[0] += w[0]
       winners[1] += w[1]
 
@@ -33,8 +37,6 @@ def runOneUniverse(players, activePlayer):
   return winners
 
 # @lru_cache needs tuple (hashable)
-#players = ((4,0), (8,0))
-players = ((1,0), (3,0))
-w = runOneUniverse(players, 0)
-print(w)
+print(f"\nExample solution: {max(runOneUniverse(((4,0), (8,0)), 0))}")
+print(f"\nPart 2 solution: {max(runOneUniverse(((1,0), (3,0)), 0))}")
 
