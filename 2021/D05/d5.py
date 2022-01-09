@@ -7,7 +7,7 @@ https://adventofcode.com/2021/day/5
 import os
 
 def readInput(filename):
-  with open(os.path.join("2021", "D5", filename)) as f:
+  with open(os.path.join("2021", "D05", filename)) as f:
     lines = f.readlines()
   segments = []
   for l in lines:
