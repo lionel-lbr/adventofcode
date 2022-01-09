@@ -16,7 +16,6 @@ def fire(velX, velY, targetX, targetY):
   while velX > 0 or y >= targetY[1]:
     if x >= targetX[0] and x <= targetX[1] and y <= targetY[0] and y >= targetY[1]:
       return True
-
     if y < targetY[1]:
       return False
     x += velX
