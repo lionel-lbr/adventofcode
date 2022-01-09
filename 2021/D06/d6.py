@@ -7,7 +7,7 @@ https://adventofcode.com/2021/day/6
 import os
 
 def readInput(filename):
-  with open(os.path.join("2021", "D6", filename)) as f:
+  with open(os.path.join("2021", "D06", filename)) as f:
     lines = f.readlines()
   input = [int(i) for i in lines[0].strip('\n').split(',')]
   return tuple(input)
