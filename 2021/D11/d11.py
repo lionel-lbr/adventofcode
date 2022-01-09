@@ -5,66 +5,65 @@ Day 11: Dumbo Octopus part 1 & 2
 https://adventofcode.com/2021/day/11
 """
 
-with open("2021/D11/d11-input.txt") as f:
-  lines = f.readlines()
+import os
 
-octopusMap =[list(map(lambda x: int(x),l)) for l in [list(l.strip('\n')) for l in lines]]
-width = len(octopusMap[0])
-height = len(octopusMap)
+def readInput(filename):
+  with open(os.path.join("2021", "D11", filename)) as f:
+    lines = f.readlines()
+  input = [list(map(lambda x: int(x), l)) for l in [list(l.strip('\n')) for l in lines]]
+  return tuple(input)
 
-def increaseAdjacent(x, y, flashed):
-  v = octopusMap[y][x]
-  if v == 0 and (x, y) in flashed:
-    return 
-  v += 1
-  if v <= 9:
-    octopusMap[y][x] = v
-    return
+class OctopusMap:
 
-  # flash this position, added to flashed visited and check adjacents
-  octopusMap[y][x] = 0
-  flashed.append((x,y))
+  def __init__(self, input):
+    self._octopusMap = input
+    self.height = len(input)
+    self.width = len(input[0])
 
-  adjacents = (
-    (x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1))
-  
-  for pos in adjacents:
-    if pos[0] < 0 or pos[0] >= width or pos[1] < 0 or pos[1] >= height:
-      continue
-    increaseAdjacent(pos[0], pos[1], flashed)
+  def increaseAdjacent(self, x, y, flashed):
+    v = self._octopusMap[y][x]
+    if v == 0 and (x, y) in flashed:
+      return
+    v += 1
+    if v <= 9:
+      self._octopusMap[y][x] = v
+      return
 
-  return len(flashed)
+    # flash this position, added to flashed visited and check adjacents
+    self._octopusMap[y][x] = 0
+    flashed.append((x, y))
+    adjacents = ((x - 1, y - 1), (x, y - 1), (x + 1, y - 1), (x - 1, y), (x + 1, y), (x - 1, y + 1), (x, y + 1), (x + 1, y + 1))
+    for x, y in adjacents:
+      if x < 0 or x >= self.width or y < 0 or y >= self.height:
+        continue
+      self.increaseAdjacent(x, y, flashed)
+    return len(flashed)
 
-def step():
-  flashed=[] # will hold coordinate of this step's already flashed octopus
-  for y in range(height):
-    for x in range(width):
-      increaseAdjacent(x, y, flashed)
-  return len(flashed)
+  def flash(self):
+    flashed = []  # will hold coordinate of this step's already flashed octopus
+    for y in range(self.height):
+      for x in range(self.width):
+        self.increaseAdjacent(x, y, flashed)
+    return len(flashed)
 
-def part1():
-  nbrOfSteps = 1
-  totalNbrOfFlashed = 0
-  while nbrOfSteps <= 100:
-    l = step()
-    totalNbrOfFlashed += l
-    print("Step:%d, flashed:%d, totalNbrOfFlashed:%d"%(nbrOfSteps, l, totalNbrOfFlashed))
-    nbrOfSteps += 1
-  return totalNbrOfFlashed
+def part1(filename):
+  octopusMap = OctopusMap(readInput(filename))
+  stepCount = 100
+  flashedCount = 0
+  while stepCount:
+    flashedCount += octopusMap.flash()
+    stepCount -= 1
+  return flashedCount
 
-def part2():
-  nbrOfSteps = 1
-  totalNbrOfFlashed = 0
-  while True:
-    l = step()
-    totalNbrOfFlashed += l
-    print("Step:%d, flashed:%d, totalNbrOfFlashed:%d"%(nbrOfSteps, l, totalNbrOfFlashed))
-    if l == width * height:
-      print("They all flashed.")
-      return nbrOfSteps
-    nbrOfSteps += 1
+def part2(filename):
+  octopusMap = OctopusMap(readInput(filename))
+  stepCount = 1
+  flashedNum = octopusMap.width * octopusMap.height
+  while octopusMap.flash() < flashedNum:
+    stepCount += 1
+  return stepCount
 
-print("Part1 solution:", part1())
-# regenerate the map before part2
-octopusMap =[list(map(lambda x: int(x),l)) for l in [list(l.strip('\n')) for l in lines]]
-print("Part2 solution:", part2())
+print("Part1 for sample:", part1("d11-sample2.txt"))
+print("Part1 for puzzle input:", part1("d11-input.txt"))
+print("Part2 for sample:", part2("d11-sample2.txt"))
+print("Part2 for puzzle input", part2("d11-input.txt"))
