@@ -7,7 +7,7 @@ https://adventofcode.com/2021/day/4
 import os
 
 def readInput(filename):
-  with open(os.path.join("2021", "D4", filename)) as f:
+  with open(os.path.join("2021", "D04", filename)) as f:
     lines = f.readlines()
   randoms = (int(n) for n in lines[0].strip('\n').split(","))
 
