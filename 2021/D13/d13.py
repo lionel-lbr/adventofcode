@@ -6,67 +6,54 @@ https://adventofcode.com/2021/day/13
 """
 import os
 
-def getPoints(filename):
+def getInput(filename):
+  with open(os.path.join("2021", "D13", filename)) as f:
+    lines = f.readlines()
+
   points = set()
   folding = []
-  with open(os.path.join("2021","D13", filename)) as f:
-    lines = f.readlines()
-    for l in [l.strip(('\n')) for l in lines if len(l)>1]:
-      if l.startswith("fold"):
-        axis, value = l.split("fold along ")[1].split("=")
-        folding.append((axis, int(value)))
-        continue
-      x, y = l.split(',')
-      points.add((int(x), int(y)))
-  return points, folding
-
-def foldY(points, foldingIndex):
-  newPoints = set()
-  for p in points:
-    if p[1] < foldingIndex:
-      newPoints.add(p)
+  for l in (l.strip(('\n')) for l in lines if len(l) > 1):
+    if l.startswith("fold"):
+      axis, value = l.split("fold along ")[1].split("=")
+      folding.append((axis, int(value)))
       continue
-    # translate Y
-    newY = foldingIndex - (p[1]-foldingIndex)
-    newPoints.add((p[0], newY))
-  return newPoints
+    x, y = l.split(',')
+    points.add((int(x), int(y)))
+  return points, tuple(folding)
 
-def foldX(points, foldingIndex):
+def fold(points, foldingIndex, foldOnXAxis=True):
   newPoints = set()
-  for p in points:
-    if p[0] < foldingIndex:
-      newPoints.add(p)
-      continue
-    # Translate X
-    newX = foldingIndex - (p[0]-foldingIndex)
-    newPoints.add((newX, p[1]))
+  for x, y in points:
+    if foldOnXAxis:
+      # translate X if folding on X axis and X above folding index
+      x = x if x < foldingIndex else foldingIndex - (x - foldingIndex)
+    else:
+      # translate Y if folding on Y axis and Y above folding index
+      y = y if y < foldingIndex else foldingIndex - (y - foldingIndex)
+    newPoints.add((x, y))
   return newPoints
-
-def showCode(points):
-  maxX = -1
-  maxY = -1
-  for x, y in points:
-    maxX = max(maxX, x)
-    maxY = max(maxY, y)
-  
-  sheet = [[" " for i in range(maxX+1)] for i in range(maxY+1)]
-  for x, y in points:
-    sheet[y][x]="#"
-
-  for s in sheet:
-    print("".join(s))
 
 def solve(filename):
-  print("Solving: %s"%filename)
-  points, folding = getPoints(filename)
+  points, folding = getInput(filename)
+  pointsCount = []
   for axis, foldIndex in folding:
-    if axis == "x":
-      np = foldX(points, foldIndex)
-    if axis == "y":
-      np = foldY(points, foldIndex)
-    print("Folding on axis:%s at index:%d -> %d points"%(axis, foldIndex, len(np)))
-    points = np
-  showCode(points)
-   
-solve("d13-sample1.txt")
-solve("d13-input.txt")
+    points = fold(points, foldIndex, axis == "x")
+    pointsCount.append(len(points))
+  return points, tuple(pointsCount)
+
+def showCode(points):
+  maxX, maxY = -1, -1
+  for x, y in points:
+    maxX, maxY = max(maxX, x), max(maxY, y)
+  sheet = tuple([" "] * (maxX + 1) for _ in range(maxY + 1))
+  for x, y in points:
+    sheet[y][x] = "#"
+  return "".join((f'\n{"".join(s)}' for s in sheet))
+
+points, pointsCount = solve("d13-sample1.txt")
+print(f'Part 1 for sample: {pointsCount[0]}')
+print(f'Part 2 for sample: {showCode(points)}')
+
+points, pointsCount = solve("d13-input.txt")
+print(f'Part 1 for puzzle input: {pointsCount[0]}')
+print(f'Part 2 for puzzle input: {showCode(points)}')
