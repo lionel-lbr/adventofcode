@@ -4,9 +4,14 @@ Day 8: Seven Segment Search part 1 & 2
 
 https://adventofcode.com/2021/day/8
 """
-def part1():
-  with open("2021/D8/d8-input.txt") as f:
+import os
+
+def readInput(filename):
+  with open(os.path.join("2021", "D08", filename)) as f:
     lines = f.readlines()
+  return tuple(lines)
+
+def part1(lines):
   count = sum([1 for sublist in [l.strip("\n").split('|')[1].strip(" ").split(" ") \
   for l in lines] for s in sublist if len(s) in [2, 4, 3, 7]])
   return count
@@ -26,30 +31,28 @@ SEG_6 = 0x20
 SEG_7 = 0x40
 
 DIGITS = {
- SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_5 | SEG_6: "0",
- SEG_2 | SEG_3: "1",
- SEG_1 | SEG_2 | SEG_4 | SEG_5 | SEG_7: "2",
- SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_7: "3",
- SEG_2 | SEG_3 | SEG_6 | SEG_7: "4",
- SEG_1 | SEG_3 | SEG_4 | SEG_6 | SEG_7: "5",
- SEG_1 | SEG_3 | SEG_4 | SEG_5 | SEG_6 | SEG_7: "6",
- SEG_1 | SEG_2 | SEG_3 : "7",
- SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_5 | SEG_6 | SEG_7: "8",
- SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_6 | SEG_7: "9",
+    SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_5 | SEG_6: "0",
+    SEG_2 | SEG_3: "1",
+    SEG_1 | SEG_2 | SEG_4 | SEG_5 | SEG_7: "2",
+    SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_7: "3",
+    SEG_2 | SEG_3 | SEG_6 | SEG_7: "4",
+    SEG_1 | SEG_3 | SEG_4 | SEG_6 | SEG_7: "5",
+    SEG_1 | SEG_3 | SEG_4 | SEG_5 | SEG_6 | SEG_7: "6",
+    SEG_1 | SEG_2 | SEG_3: "7",
+    SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_5 | SEG_6 | SEG_7: "8",
+    SEG_1 | SEG_2 | SEG_3 | SEG_4 | SEG_6 | SEG_7: "9",
 }
 
-def part2():
-  with open("2021/D8/d8-input.txt") as f:
-    lines = f.readlines()
+def part2(lines):
 
   input = []
   for e in [l.strip("\n").split('|') for l in lines]:
     input.append([e[0].strip(' ').split(' '), e[1].strip(' ').split(' ')])
 
   result = 0
-  for encodingString, toDecode in input: 
-    
-    # decoding wire to segment 
+  for encodingString, toDecode in input:
+
+    # decoding wire to segment
     WiresToSegment = dict()
     one = [set(s) for s in encodingString if len(s) == 2][0]
     seven = [set(s) for s in encodingString if len(s) == 3][0]
@@ -73,7 +76,7 @@ def part2():
     WiresToSegment[seg6.pop()] = SEG_6
     zeroSixNine.remove(nine)
     zero = zeroSixNine[0]
-    WiresToSegment[height.difference(zero).pop()] = SEG_7 
+    WiresToSegment[height.difference(zero).pop()] = SEG_7
     WiresToSegment[height.difference(WiresToSegment.keys()).pop()] = SEG_4
 
     code = ""
@@ -82,7 +85,11 @@ def part2():
       code += DIGITS[d]
     result += int(code)
   return result
-  
-print("part 1:", part1())
-print("part 2:", part2())
 
+samples = readInput("d8-sample1.txt")
+lines = readInput("d8-input.txt")
+print(f"Part 1 sample: {part1(samples)}")
+print(f"Part 1 puzzle input: {part1(lines)}")
+
+print(f"Part 2 sample: {part2(samples)}")
+print(f"Part 2 puzzle input: {part2(lines)}")
