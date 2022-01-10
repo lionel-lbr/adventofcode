@@ -7,39 +7,23 @@ https://adventofcode.com/2021/day/19
 import os
 import numpy as np
 
-UNIT_MATRIX = np.array([[1,0,0], [0,1,0], [0,0,1]])
-ROTATION_X = np.array([[1,0,0], [0,0,-1], [0,1,0]])
-ROTATION_Y = np.array([[0,0,1], [0,1,0], [-1,0,0]])
-ROTATION_Z = np.array([[0,-1,0], [1,0,0], [0,0,1]])
+UNIT_MATRIX = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+ROTATION_X = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]])
+ROTATION_Y = np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])
+ROTATION_Z = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
-rotationsMatrices = [
-  [UNIT_MATRIX],
-  [ROTATION_Y],
-  [ROTATION_Y, ROTATION_Y],
-  [ROTATION_Y, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z],
-  [ROTATION_Z, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Z],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y],
-  [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y],
-  [ROTATION_X],
-  [ROTATION_X, ROTATION_Y],
-  [ROTATION_X, ROTATION_Y, ROTATION_Y],
-  [ROTATION_X, ROTATION_Y, ROTATION_Y, ROTATION_Y],
-  [ROTATION_X, ROTATION_X, ROTATION_X],
-  [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y],
-  [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y, ROTATION_Y],
-  [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y, ROTATION_Y, ROTATION_Y]]
+rotationsMatrices = [[UNIT_MATRIX], [ROTATION_Y], [ROTATION_Y, ROTATION_Y], [ROTATION_Y, ROTATION_Y, ROTATION_Y], [ROTATION_Z],
+                     [ROTATION_Z, ROTATION_Y], [ROTATION_Z, ROTATION_Y, ROTATION_Y], [ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y],
+                     [ROTATION_Z, ROTATION_Z], [ROTATION_Z, ROTATION_Z, ROTATION_Y], [ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y],
+                     [ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y], [ROTATION_Z, ROTATION_Z, ROTATION_Z],
+                     [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y], [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y],
+                     [ROTATION_Z, ROTATION_Z, ROTATION_Z, ROTATION_Y, ROTATION_Y, ROTATION_Y], [ROTATION_X], [ROTATION_X, ROTATION_Y],
+                     [ROTATION_X, ROTATION_Y, ROTATION_Y], [ROTATION_X, ROTATION_Y, ROTATION_Y, ROTATION_Y], [ROTATION_X, ROTATION_X, ROTATION_X],
+                     [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y], [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y, ROTATION_Y],
+                     [ROTATION_X, ROTATION_X, ROTATION_X, ROTATION_Y, ROTATION_Y, ROTATION_Y]]
 
 def readInputFile(filename):
-  with open(os.path.join("2021","D19", filename)) as f:
+  with open(os.path.join("2021", "D19", filename)) as f:
     lines = f.readlines()
   scannerIndex = -1
   scanners = []
@@ -50,29 +34,29 @@ def readInputFile(filename):
       continue
     if len(l.strip('\n')) == 0:
       continue
-    point = [int(v) for v in l.strip('\n').split(',')]
+    point = tuple(int(v) for v in l.strip('\n').split(','))
     scanners[scannerIndex].append(point)
 
   # convert all inputs to numpy array
   for i, s in enumerate(scanners):
-    scanners[i] = np.array(s)    
+    scanners[i] = np.array(s)
   return scanners
 
 def applyMatrix(matrix, point):
   p = point
   for m in matrix:
-    p = np.sum(m * p, axis = 1)
+    p = np.sum(m * p, axis=1)
   return p
 
 def rotateBeacons(scanner, matrix):
   rb = []
-  for b in scanner: 
-    r = applyMatrix(matrix, b) 
+  for b in scanner:
+    r = applyMatrix(matrix, b)
     rb.append(r)
   return np.array(rb)
 
 def findOverlapOrientation(scanner, refScanner):
-  for i, matrix in enumerate(rotationsMatrices):
+  for _, matrix in enumerate(rotationsMatrices):
     # rotate all scanner's beacons
     rotatedBeacons = rotateBeacons(scanner, matrix)
     # translate all rotated beacons to scanner 0 system
@@ -90,10 +74,9 @@ def solve(filename):
   uniqueBeacons = set()
   todo = [(0, scanners[0])]
   scanners[0] = None
-  newOrigin = {0:np.array([0,0,0])}
-  maxDistance = -1
-  while len(todo) > 0:
-    i,  refScanner = todo.pop()
+  newOrigin = {0: np.array([0, 0, 0])}
+  while todo:
+    i, refScanner = todo.pop()
     uniqueBeacons.update(map(tuple, refScanner))
     for j, scanner in enumerate(scanners):
       if scanner is None:
@@ -101,18 +84,20 @@ def solve(filename):
       result = findOverlapOrientation(scanner, refScanner)
       if result is not None:
         print(f">> Scanners {i} and {j} are overlaping <<")
-        if (j, result[0]) not in todo:
-          todo.append((j, result[0]))
-          scanners[j] = None  
-          newOrigin[j] = result[1]
+        trsBeacons, newOrg = result
+        if (j, trsBeacons) not in todo:
+          todo.append((j, trsBeacons))
+          scanners[j] = None
+          newOrigin[j] = newOrg
   print(f"Part1: Total number beacons: {len(uniqueBeacons)}")
-  for i in range(len(scanners)-1):
-    for j in range(i+1,len(scanners)):
+  # part 2, calculate max distance
+  maxDistance = -1
+  for i in range(len(scanners) - 1):
+    for j in range(i + 1, len(scanners)):
       d = newOrigin[j] - newOrigin[i]
-      s = int(sum(map(abs,d)))
+      s = int(sum(map(abs, d)))
       maxDistance = max(maxDistance, s)
   print(f"Part2: Max distance: {maxDistance}")
-
 
 solve("d19-sample1.txt")
 solve("d19-input.txt")
