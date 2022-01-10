@@ -26,8 +26,8 @@ def solvePart2(filename):
   count = 0
   input = readInput(filename)
   previous = input[0]
-  for i, _ in enumerate(input[1:-2]):
-    n = input[i] + input[i + 1] + input[i + 2]
+  for i in range(1, len(input) - 2):
+    n = sum(input[i:i + 3])
     if n > previous:
       count += 1
     previous = n
