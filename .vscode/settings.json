@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "python.linting.enabled": true,
+  "python.formatting.provider": "yapf", // or "black" here
+  "python.formatting.yapfArgs": [
+    "--style={based_on_style: pep8, COLUMN_LIMIT:120, indent_width: 2, BLANK_LINES_AROUND_TOP_LEVEL_DEFINITION:1, BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF:0, NO_SPACES_AROUND_SELECTED_BINARY_OPERATORS:''}"
+  ]
+}
