@@ -1,0 +1,55 @@
+1: A B C D (contains dairy, fish)
+2: E F G A (contains dairy)
+3: C F (contains soy)
+4: C A G (contains fish)
+
+-> B D G E
+
+1:2 -> A
+
+1: B C D (contains , fish)
+2: E F G (contains )
+3: C F (contains soy)
+4: C G (contains fish)
+
+1:4 -> C 
+
+1: B D (contains , )
+2: E F G (contains )
+3: F (contains soy)
+4: G (contains )
+
+-> F 
+
+1: B D (contains , )
+2: E G (contains )
+3:  (contains soy)
+4: G (contains )
+
+
+no -> 
+dairy -> A B C D, E F G A 
+fish -> A B C D, C A G
+soy -> C F  
+
+dairy -> A 
+no -> B C D, E F G
+fish -> B C D, C G
+soy -> C F  
+
+dairy -> A 
+fish-> C 
+no -> B D, E F G, B D, G 
+soy -> F
+
+no -> B D, E G, B D, G 
+
+
+wheat
+soy 
+shellfish
+dairy
+fish, 
+nuts
+eggs
+peanuts
