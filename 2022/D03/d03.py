@@ -16,42 +16,31 @@ def readInput(filename):
   input = (d.strip('\n') for d in lines)
   return tuple(input)
 
-ASCII_A = ord('A')  # 65
-ASCII_a = ord('a')  # 97
+ASCII = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 def part1(input):
   startTime = pfc()
-  duplicate = []
-  for r in input:
-    r1 = r[:len(r) // 2]  # integer division
-    r2 = r[len(r) // 2:]
-    for c in r1:
-      if c in r2:
-        duplicate.append(c)
-        break
 
   result = 0
-  for c in duplicate:
-    result += 1 + ord(c) - ASCII_a if (ord(c) >= ASCII_a) else 27 + ord(c) - ASCII_A
+  for r in input:
+    s1 = set(r[:len(r) // 2])  # integer division
+    s2 = set(r[len(r) // 2:])
+    c = s1.intersection(s2).pop()
+    result += ASCII.index(c)
 
   print(f"Part 1 time: {pfc() - startTime:.4}")
   return result
 
 def part2(input):
   startTime = pfc()
-  tags = []
-  for i in range(0, len(input), 3):
-    r1 = input[i]
-    r2 = input[i + 1]
-    r3 = input[i + 2]
-    for c in r1:
-      if c in r2 and c in r3:
-        tags.append(c)
-        break
 
   result = 0
-  for c in tags:
-    result += 1 + ord(c) - ASCII_a if (ord(c) >= ASCII_a) else 27 + ord(c) - ASCII_A
+  for i in range(0, len(input), 3):
+    s1 = set(input[i])
+    s2 = set(input[i + 1])
+    s3 = set(input[i + 2])
+    c = s1.intersection(s2.intersection(s3)).pop()
+    result += ASCII.index(c)
 
   print(f"Part 2 time: {pfc() - startTime:.4}")
   return result

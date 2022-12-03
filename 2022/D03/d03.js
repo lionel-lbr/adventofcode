@@ -31,46 +31,33 @@ function readInput(filename) {
     console.error(err);
   }
 }
-const ASCII_A = 'A'.charCodeAt(0); // 65
-const ASCII_a = 'a'.charCodeAt(0); // 97
+
+const ASCII = ' abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 function part1(input) {
-  const duplicate = input.reduce((d, r) => {
-    const r1 = r.slice(0, Math.floor(r.length / 2));
-    const r2 = r.slice(Math.floor(r.length / 2));
+  const result = input.reduce((s, r) => {
+    const s1 = new Set(r.slice(0, Math.floor(r.length / 2)));
+    const s2 = new Set(r.slice(Math.floor(r.length / 2)));
 
-    for (c of r1) {
-      if (r2.some((c2) => c2 === c)) return [...d, c];
-    }
-
-    return d;
-  }, []);
-
-  return duplicate.reduce((s, c) => {
-    const code = c.charCodeAt(0);
-    return code >= ASCII_a ? s + 1 + code - ASCII_a : s + 27 + code - ASCII_A;
+    const v = [...s1].filter((c) => s2.has(c)).pop();
+    return s + ASCII.findIndex((c) => c === v);
   }, 0);
+
+  return result;
 }
 
 function part2(input) {
-  const tags = [];
+  let result = 0;
   for (let i = 0; i < input.length; i += 3) {
-    const r1 = input[i];
-    const r2 = input[i + 1];
-    const r3 = input[i + 2];
+    const s1 = new Set(input[i]);
+    const s2 = new Set(input[i + 1]);
+    const s3 = new Set(input[i + 2]);
 
-    for (c of r1) {
-      if (r2.some((c2) => c2 === c) && r3.some((c3) => c3 === c)) {
-        tags.push(c);
-        break;
-      }
-    }
+    const v = [...s1].filter((c) => s2.has(c) && s3.has(c)).pop();
+    result += ASCII.findIndex((c) => c === v);
   }
 
-  return tags.reduce((s, c) => {
-    const code = c.charCodeAt(0);
-    return code >= ASCII_a ? s + 1 + code - ASCII_a : s + 27 + code - ASCII_A;
-  }, 0);
+  return result;
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);

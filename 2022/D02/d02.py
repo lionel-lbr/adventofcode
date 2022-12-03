@@ -27,7 +27,7 @@ def part1(input):
   startTime = pfc()
 
   def game(s, g):
-    (player1, player2) = g
+    player1, player2 = g
     if WIN_PAIRS[player1] == player2:  # win
       return s + 6 + POINTS[player2]
     if DRAW_PAIRS[player1] == player2:  # draw
@@ -42,7 +42,7 @@ def part2(input):
   startTime = pfc()
 
   def game(s, g):
-    (player1, player2) = g
+    player1, player2 = g
     if player2 == "X":  # loose
       return s + POINTS[LOOSE_PAIRS[player1]]
     if player2 == "Y":  # draw
