@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 8: xx part 1 & 2
+Day 8: Treetop Tree House part 1 & 2
 
 https://adventofcode.com/2022/day/8
 */
@@ -12,92 +12,59 @@ const YEAR = '2022';
 const DAY = '08';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l);
-
-    return lines;
-  };
-
-  const parseALine = (line) => {};
-
-  try {
-    const lines = readRawIntput();
-    return lines.map((t) => t.split('').map((n) => Number(n)));
-  } catch (err) {
-    console.error(err);
-  }
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .map((t) => t.split('').map((n) => Number(n)));
 }
 
 function part1(input) {
-  const mapLength = input.length;
-  const trees = new Set();
-
-  const addTree = ({ x, y }) => {
-    trees.add(`x:${x}-y:${y}-t:${input[y][x]}`);
+  const checkMax = (maxArr, t, x, y) => {
+    const maxPos = maxArr[maxArr.length - 1];
+    if (t > input[maxPos.y][maxPos.x]) maxArr.push({ x, y });
+    return maxArr;
   };
 
-  for (let y = 0; y < mapLength; y += 1) {
-    let localHigh = input[y][0];
-    let localHighPos = { x: 0, y };
-    addTree(localHighPos);
-    for (let x = 0; x < mapLength; x += 1) {
-      if (input[y][x] > localHigh) {
-        localHigh = input[y][x];
-        localHighPos = { x, y };
-        addTree(localHighPos);
-      }
-    }
-  }
+  // parse left to right
+  const ltr = input.reduce(
+    (max, row, y) => row.reduce((max, t, x) => checkMax(max, t, x, y), [...max, { x: 0, y }]),
+    []
+  );
 
-  for (let y = 0; y < mapLength; y += 1) {
-    let localHigh = input[y][mapLength - 1];
-    let localHighPos = { x: mapLength - 1, y };
-    addTree(localHighPos);
-    for (let x = mapLength - 1; x > 0; x -= 1) {
-      if (input[y][x] > localHigh) {
-        localHigh = input[y][x];
-        localHighPos = { x, y };
-        addTree(localHighPos);
-      }
-    }
-  }
+  // parse right to left
+  const rtl = input.reduce(
+    (max, row, y) => row.reduceRight((max, t, x) => checkMax(max, t, x, y), [...max, { x: row.length - 1, y }]),
+    []
+  );
 
-  for (let x = 0; x < mapLength; x++) {
-    let localHigh = input[0][x];
-    let localHighPos = { x, y: 0 };
-    addTree(localHighPos);
-    for (let y = 0; y < mapLength; y++) {
-      if (input[y][x] > localHigh) {
-        localHigh = input[y][x];
-        localHighPos = { x, y };
-        addTree(localHighPos);
-      }
-    }
-  }
+  // top to bottom
+  const ttb = input.reduce(
+    (max, _, x) => input.reduce((max, row, y) => checkMax(max, row[x], x, y), [...max, { x, y: 0 }]),
+    []
+  );
 
-  for (let x = 0; x < mapLength; x++) {
-    let localHigh = input[mapLength - 1][x];
-    let localHighPos = { x, y: mapLength - 1 };
-    addTree(localHighPos);
-    for (let y = mapLength - 1; y > 0; y -= 1) {
-      if (input[y][x] > localHigh) {
-        localHigh = input[y][x];
-        localHighPos = { x, y };
-        addTree(localHighPos);
-      }
-    }
-  }
+  // bottom to top
+  const btt = input.reduce(
+    (max, _, x) =>
+      input.reduceRight((max, row, y) => checkMax(max, row[x], x, y), [...max, { x, y: input.length - 1 }]),
+    []
+  );
+
+  const trees = new Set([
+    ...ltr.map(({ x, y }) => `x:${x} y:${y}`),
+    ...rtl.map(({ x, y }) => `x:${x} y:${y}`),
+    ...ttb.map(({ x, y }) => `x:${x} y:${y}`),
+    ...btt.map(({ x, y }) => `x:${x} y:${y}`),
+  ]);
 
   return trees.size;
 }
 
 function part2(input) {
   const mapLength = input.length;
-  let score = 0;
+
   const scenicScore = (x, y, tree = false) => {
     if (tree === false) tree = input[y][x];
     else {
@@ -105,6 +72,7 @@ function part2(input) {
       return true;
     }
 
+    // recurse in 4 directions
     let up = 1;
     while (scenicScore(x, y - up, tree)) up += 1;
     let right = 1;
@@ -117,6 +85,7 @@ function part2(input) {
     return up * right * down * left;
   };
 
+  let score = 0;
   for (let y = 1; y < mapLength - 1; y++) {
     for (let x = 1; x < mapLength - 1; x++) {
       score = Math.max(score, scenicScore(x, y));
