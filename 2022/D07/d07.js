@@ -138,7 +138,6 @@ function part2() {
   return folders[0].size;
 }
 
-//const input = readInput(`d${DAY}-sample.txt`);
 const input = readInput(`d${DAY}-input.txt`);
 console.log(`Part 1: ${part1(input)}`);
 console.log(`Part 2: ${part2()}`);
