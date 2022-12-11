@@ -17,13 +17,7 @@ function readInput(filename) {
     .toString()
     .split(`\n`)
     .filter((l) => l)
-    .map((i) => {
-      if (i.startsWith('noop')) return { inst: 'noop', arg: null };
-      else {
-        const inc = i.split(' ')[1];
-        return { inst: 'addx', arg: Number(inc) };
-      }
-    });
+    .map((i) => (i.startsWith('noop') ? { inst: 'noop', arg: null } : { inst: 'addx', arg: Number(i.split(' ')[1]) }));
 }
 
 function part1(input) {
@@ -59,8 +53,8 @@ function part2(input) {
     cycle += 1;
     const pos = (cycle - 1) % 40;
     if (pos === 0) image.push('\n');
-    if (pos >= x - 1 && pos <= x + 1) image.push('#');
-    else image.push('.');
+    if (pos >= x - 1 && pos <= x + 1) image.push('0');
+    else image.push(' ');
   };
 
   input.reduce((regX, { inst, arg }) => {
