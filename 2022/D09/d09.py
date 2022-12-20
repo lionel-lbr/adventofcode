@@ -73,13 +73,10 @@ def solve(input, size):
     d, s = move
     if (d == "R"):
       rope.moveRight(s)
-      pass
     elif (d == "L"):
       rope.moveLeft(s)
-      pass
     elif (d == "U"):
       rope.moveUp(s)
-      pass
     elif (d == "D"):
       rope.moveDown(s)
 

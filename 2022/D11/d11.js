@@ -32,12 +32,12 @@ function readInput(filename) {
   }
 }
 
-function Monkey(index, items, oper, test, receivers) {
+function Monkey(index, items, oper, mod, receivers) {
   this.index = index;
   this.items = [...items];
   this.oper = oper;
-  this.test = test;
   this.receivers = [...receivers];
+  this.mod = mod;
   this.count = 0;
 
   this.addItem = (item) => {
@@ -49,126 +49,126 @@ function Monkey(index, items, oper, test, receivers) {
       const item = this.items.shift();
 
       const r = this.oper(item);
-      if (this.test(r)) monkeys[[this.receivers[0]]].addItem(r);
+      if (r % this.mod === 0) monkeys[[this.receivers[0]]].addItem(r);
       else monkeys[[this.receivers[1]]].addItem(r);
       this.count += 1;
     }
   };
 }
 
-// const monkeys = [
-//   new Monkey(
-//     0,
-//     [98, 89, 52],
-//     // (item) => Math.floor((item * 2) / 3),
-//     (item) => Math.floor(item * 2),
-//     (r) => r % 5 === 0,
-//     [6, 1]
-//   ),
-//   new Monkey(
-//     1,
-//     [57, 95, 80, 92, 57, 78],
-//     // (item) => Math.floor((item * 13) / 3),
-//     (item) => Math.floor(item * 13),
-//     (r) => r % 2 === 0,
-//     [2, 6]
-//   ),
-//   new Monkey(
-//     2,
-//     [82, 74, 97, 75, 51, 92, 83],
-//     // (item) => Math.floor((item + 5) / 3),
-//     (item) => Math.floor(item + 5),
-//     (r) => r % 19 === 0,
-//     [7, 5]
-//   ),
-//   new Monkey(
-//     3,
-//     [97, 88, 51, 68, 76],
-//     // (item) => Math.floor((item + 6) / 3),
-//     (item) => Math.floor(item + 6),
-//     (r) => r % 7 === 0,
-//     [0, 4]
-//   ),
-//   new Monkey(
-//     4,
-//     [63],
-//     // (item) => Math.floor((item + 1) / 3),
-//     (item) => Math.floor(item + 1),
-//     (r) => r % 17 === 0,
-//     [0, 1]
-//   ),
-//   new Monkey(
-//     5,
-//     [94, 91, 51, 63],
-//     // (item) => Math.floor((item + 4) / 3),
-//     (item) => Math.floor(item + 4),
-//     (r) => r % 13 === 0,
-//     [4, 3]
-//   ),
-//   new Monkey(
-//     6,
-//     [61, 54, 94, 71, 74, 68, 98, 83],
-//     // (item) => Math.floor((item + 2) / 3),
-//     (item) => Math.floor(item + 2),
-//     (r) => r % 3 === 0,
-//     [2, 7]
-//   ),
-//   new Monkey(
-//     7,
-//     [90, 56],
-//     // (item) => Math.floor((item * item) / 3),
-//     (item) => Math.floor(item * item),
-//     (r) => r % 11 === 0,
-//     [3, 5]
-//   ),
-// ];
-
 const monkeys = [
   new Monkey(
     0,
-    [79, 98],
-    // (item) => Math.floor((item * 19) / 3),
-    (item) => item / item,
-    (r) => r % 23 === 0,
-    [2, 3]
+    [98, 89, 52],
+    // (item) => Math.floor((item * 2) / 3),
+    (item) => Math.floor(item * 2) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    5,
+    [6, 1]
   ),
   new Monkey(
     1,
-    [54, 65, 75, 74],
-    // (item) => Math.floor((item + 6) / 3),
-    (item) => item / item,
-    (r) => r % 19 === 0,
-    [2, 0]
+    [57, 95, 80, 92, 57, 78],
+    // (item) => Math.floor((item * 13) / 3),
+    (item) => Math.floor(item * 13) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    2,
+    [2, 6]
   ),
   new Monkey(
     2,
-    [79, 60, 97],
-    // (item) => Math.floor((item * item) / 3),
-    (item) => item / item,
-    (r) => r % 13 === 0,
-    [1, 3]
+    [82, 74, 97, 75, 51, 92, 83],
+    // (item) => Math.floor((item + 5) / 3),
+    (item) => Math.floor(item + 5) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    19,
+    [7, 5]
   ),
   new Monkey(
     3,
-    [74],
-    // (item) => Math.floor((item + 3) / 3),
-    (item) => item / item,
-    (r) => r % 17 === 0,
+    [97, 88, 51, 68, 76],
+    // (item) => Math.floor((item + 6) / 3),
+    (item) => Math.floor(item + 6) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    7,
+    [0, 4]
+  ),
+  new Monkey(
+    4,
+    [63],
+    // (item) => Math.floor((item + 1) / 3),
+    (item) => Math.floor(item + 1) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    17,
     [0, 1]
+  ),
+  new Monkey(
+    5,
+    [94, 91, 51, 63],
+    // (item) => Math.floor((item + 4) / 3),
+    (item) => Math.floor(item + 4) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    13,
+    [4, 3]
+  ),
+  new Monkey(
+    6,
+    [61, 54, 94, 71, 74, 68, 98, 83],
+    // (item) => Math.floor((item + 2) / 3),
+    (item) => Math.floor(item + 2) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    3,
+    [2, 7]
+  ),
+  new Monkey(
+    7,
+    [90, 56],
+    // (item) => Math.floor((item * item) / 3),
+    (item) => Math.floor(item * item) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
+    11,
+    [3, 5]
   ),
 ];
 
+// const monkeys = [
+//   new Monkey(
+//     0,
+//     [79, 98],
+//     // (item) => Math.floor((item * 19) / 3),
+//     (item) => Math.floor(item * 19),
+//     23,
+//     [2, 3]
+//   ),
+//   new Monkey(
+//     1,
+//     [54, 65, 75, 74],
+//     // (item) => Math.floor((item + 6) / 3),
+//     (item) => Math.floor(item + 6),
+//     19,
+//     [2, 0]
+//   ),
+//   new Monkey(
+//     2,
+//     [79, 60, 97],
+//     // (item) => Math.floor((item * item) / 3),
+//     (item) => Math.floor(item * item),
+//     13,
+//     [1, 3]
+//   ),
+//   new Monkey(
+//     3,
+//     [74],
+//     // (item) => Math.floor((item + 3) / 3),
+//     (item) => item + 3,
+//     17,
+//     [0, 1]
+//   ),
+// ];
+
 function part1(input) {
-  let count = 20;
+  let count = 10_000;
   while (count > 0) {
     monkeys.forEach((m) => m.turn());
     count -= 1;
   }
   const result = monkeys.map((m) => m.count);
   console.log(result);
-  result.sort((a, b) => (a > b ? 1 : a < b ? -1 : 0));
+  result.sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
   console.log(result);
-  return result;
+  return result[0] * result[1];
 }
 
 function part2(input) {

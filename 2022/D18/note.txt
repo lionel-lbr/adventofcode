@@ -1,0 +1,42 @@
+Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
+Valve BB has flow rate=13; tunnels lead to valves CC, AA
+Valve CC has flow rate=2; tunnels lead to valves DD, BB
+Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
+Valve EE has flow rate=3; tunnels lead to valves FF, DD
+Valve FF has flow rate=0; tunnels lead to valves EE, GG
+Valve GG has flow rate=0; tunnels lead to valves FF, HH
+Valve HH has flow rate=22; tunnel leads to valve GG
+Valve II has flow rate=0; tunnels lead to valves AA, JJ
+Valve JJ has flow rate=21; tunnel leads to valve II
+
+AA > DDxDD > CC > BBxBB > AA > II > JJxJJ > II > AA > DD > EE > FF > GG > HHxHH > GG > FF > EExEE > DD > CCxCC 
+30   29 28   27   26 25   24   23   22 21   20   19   18   17   16   15   14 13   12   11   10  9    8    7  6  5
+     20*28        13*25             21*21                                 22*13              3*09         2*6            
+
+
+BB 13
+CC 02
+DD 20
+EE 03 
+HH 22
+JJ 21
+
+ A ->    B   ->    C  ->   D ->   E ->   H ->  J
+30    29 28     27 26    25 24  23 22  19 18   11 10
+      13*28     02*26    20*24  3*22   22*18   21*10
+
+A -> B -> C -> D -> E -> J -> H
+
+
+A -> B -> C -> D -> H -> E -> J
+
+A -> B -> C -> D -> H -> J -> E
+
+A -> B -> C -> D -> J -> E -> H
+
+A -> B -> C -> D -> J -> H -> E
+
+ A ->   D   ->  B   ->   J  ->  H  ->  E  -> C
+30    29 28   26 25    22 21  14 13  10 9   7 6
+      20*28   13*25    21*21  22*13   3*9   6*2 
+

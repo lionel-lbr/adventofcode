@@ -8,7 +8,11 @@ https://adventofcode.com/2022/day/12
 const fs = require('fs');
 const path = require('path');
 // const { Terminal } = require('command-line-draw');
-// const { execSync } = require('child_process');
+const { execSync } = require('child_process');
+
+function Terminal() {
+  this.write = () => {};
+}
 
 const YEAR = '2022';
 const DAY = '12';
@@ -38,7 +42,7 @@ function PriorityQueue() {
   this.queue = [];
   let needSort = true;
 
-  this.push = (node) => {
+  this.add = (pos) => {
     const i = this.queue.findIndex((n) => n.x === pos.x && n.y === pos.y);
     if (i > -1) {
       this.queue[i] = pos;
@@ -48,29 +52,32 @@ function PriorityQueue() {
 
   this.pop = () => {
     if (needSort) {
-      this.queue.sort((n1, n2) => n2.f - n1.f);
+      this.queue.sort((n1, n2) => {
+        // if (n2.f === n1.f) return n2.h - n1.h;
+        // else return n2.f - n1.f;
+        return n2.g - n1.g;
+      });
       needSort = false;
     }
 
     return this.queue.pop();
   };
 
-  this.find = (node) => {
-    return this.queue.find(node);
-    // const i = this.queue.findIndex((n) => n.x === x && n.y === y);
-    // if (i > -1) {
-    //   return this.queue[i];
-    // }
+  this.find = ({ x, y }) => {
+    const i = this.queue.findIndex((n) => n.x === x && n.y === y);
+    if (i > -1) {
+      return this.queue[i];
+    }
   };
 
   this.isEmpty = () => {
-    return this.queue.length;
+    return this.queue.length > 0 ? false : true;
   };
 }
 
 const LETTERS = ' SabcdefghijklmnopqrstuvwxyzE';
 function part1(input) {
-  // const terminal = new Terminal();
+  const terminal = new Terminal();
 
   const width = input[0].length;
   const height = input.length;
@@ -85,15 +92,15 @@ function part1(input) {
 
   const getNeighbour = ({ x, y }) => {
     const n = [];
-    const l = getNode(x, y).v;
-    const top = y > 0 ? getNode(x, y - 1) : undefined;
-    const right = x < width - 1 ? getNode(x + 1, y) : undefined;
-    const bottom = y < height - 1 ? getNode(x, y + 1) : undefined;
-    const left = y > 0 ? getNode(x - 1, y) : undefined;
-    if (top && top.v <= l + 1) n.push(top);
-    if (right && right.v <= l + 1) n.push(right);
-    if (bottom && bottom.v <= l + 1) n.push(bottom);
-    if (left && left.v <= l + 1) n.push(left);
+    const l = getValue(x, y);
+    const top = getValue(x, y - 1);
+    const right = getValue(x + 1, y);
+    const bottom = getValue(x, y + 1);
+    const left = getValue(x - 1, y);
+    if (top <= l + 1) n.push({ x, y: y - 1 });
+    if (right <= l + 1) n.push({ x: x + 1, y });
+    if (bottom <= l + 1) n.push({ x, y: y + 1 });
+    if (left <= l + 1) n.push({ x: x - 1, y });
     return n;
   };
 
@@ -103,13 +110,16 @@ function part1(input) {
     let d1 = Math.abs(src.x - dst.x);
     let d2 = Math.abs(src.y - dst.y);
     return d1 + d2;
+    // let d1 = (src.x - dst.x) * (src.x - dst.x);
+    // let d2 = (src.y - dst.y) * (src.y - dst.y);
+    // return Math.sqrt(d1 + d2);
   };
 
   // find Start and End
   let { src, dst } = input.reduce(
     (result, row, y) =>
       row.reduce((result, v, x) => {
-        // terminal.write(v, x, y);
+        terminal.write(v, x, y);
         if (v === 'S') return Object.assign(result, { src: { x, y, g: 0 } });
         else if (v === 'E') return Object.assign(result, { dst: { x, y, g: Infinity } });
         else return result;
@@ -117,40 +127,37 @@ function part1(input) {
     {}
   );
 
-  const map = input.map((row, y) =>
-    row.map((l, x) => ({ v: LETTERS.indexOf(l), h: calculateDistance({ x, y }, dst), g: 0 }))
-  );
+  priorityQueue.add(src);
 
-  const getNode = (x, y) => map[y][x];
-  src = getNode(src.x, src.y);
-  dst = getNode(dst.x, dst.y);
-  priorityQueue.push(src);
-
-  while (priorityQueue.isEmpty() > 0) {
-    // execSync('sleep 0.5');
+  while (!priorityQueue.isEmpty()) {
+    // execSync('sleep 0.25');
     const q = priorityQueue.pop();
-    // terminal.write(input[q.y][q.x], q.x, q.y, 'red');
+    terminal.write(input[q.y][q.x], q.x, q.y, 'yellow', 'blue');
+    terminal.write(`x:${q.x} y:${q.y} l:${input[q.y][q.x]} g:${q.g} h:${q.h} f:${q.f}`, width + 10, 0);
     const neighbours = getNeighbour(q);
 
     for (n of neighbours) {
-      if (n == dst) {
-        // terminal.write(input[n.y][n.x], n.x, n.y, 'green');
+      if (n.x === dst.x && n.y === dst.y) {
+        terminal.write(input[n.y][n.x], n.x, n.y, 'green');
         // return q.g + 1;
-        console.log(`Found: ${q.g + 1}`);
+        // console.log(`Found: ${q.g + 1}`);
         return q.g + 1;
       }
       n.g = q.g + 1;
-      n.f = n.g + n.h;
+      // n.h = calculateDistance(n, dst);
+      // n.f = n.g + n.h;
 
       const s = priorityQueue.find(n);
-      if (s && s.f <= n.f) continue;
+      if (s && s.g <= n.g) continue;
 
       const v = visited.find(n);
-      if (v && v.f <= n.f) continue;
+      if (v && v.g <= n.g) continue;
 
-      priorityQueue.push(n);
+      terminal.write(input[n.y][n.x], n.x, n.y, 'red');
+      priorityQueue.add(n);
     }
-    visited.push(q);
+    terminal.write(input[q.y][q.x], q.x, q.y, 'yellow');
+    visited.add(q);
   }
 
   return dst.g;
@@ -162,6 +169,6 @@ function part2(input) {
 
 //const input = readInput(`d${DAY}-sample.txt`);
 const input = readInput(`d${DAY}-input.txt`);
-// part1(input);
-console.log(`Part 1: ${part1(input)}`);
+part1(input);
+// console.log(`Part 1: ${part1(input)}`);
 // console.log(`Part 2: ${part2(input)}`);
