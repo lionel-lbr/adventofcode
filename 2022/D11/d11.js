@@ -26,7 +26,16 @@ function readInput(filename) {
 
   try {
     const lines = readRawIntput();
-    return lines;
+    return lines.map((l) => {
+      const s = l.split(';');
+      const r = {
+        items: eval(s[0]),
+        oper: eval(`(old) => {return ${s[1]};}`),
+        mod: Number(s[2]),
+        receivers: eval(s[3]),
+      };
+      return r;
+    });
   } catch (err) {
     console.error(err);
   }
@@ -44,7 +53,7 @@ function Monkey(index, items, oper, mod, receivers) {
     this.items.push(item);
   };
 
-  this.turn = () => {
+  this.turn = (monkeys) => {
     while (this.items.length > 0) {
       const item = this.items.shift();
 
@@ -56,123 +65,43 @@ function Monkey(index, items, oper, mod, receivers) {
   };
 }
 
-const monkeys = [
-  new Monkey(
-    0,
-    [98, 89, 52],
-    // (item) => Math.floor((item * 2) / 3),
-    (item) => Math.floor(item * 2) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    5,
-    [6, 1]
-  ),
-  new Monkey(
-    1,
-    [57, 95, 80, 92, 57, 78],
-    // (item) => Math.floor((item * 13) / 3),
-    (item) => Math.floor(item * 13) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    2,
-    [2, 6]
-  ),
-  new Monkey(
-    2,
-    [82, 74, 97, 75, 51, 92, 83],
-    // (item) => Math.floor((item + 5) / 3),
-    (item) => Math.floor(item + 5) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    19,
-    [7, 5]
-  ),
-  new Monkey(
-    3,
-    [97, 88, 51, 68, 76],
-    // (item) => Math.floor((item + 6) / 3),
-    (item) => Math.floor(item + 6) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    7,
-    [0, 4]
-  ),
-  new Monkey(
-    4,
-    [63],
-    // (item) => Math.floor((item + 1) / 3),
-    (item) => Math.floor(item + 1) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    17,
-    [0, 1]
-  ),
-  new Monkey(
-    5,
-    [94, 91, 51, 63],
-    // (item) => Math.floor((item + 4) / 3),
-    (item) => Math.floor(item + 4) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    13,
-    [4, 3]
-  ),
-  new Monkey(
-    6,
-    [61, 54, 94, 71, 74, 68, 98, 83],
-    // (item) => Math.floor((item + 2) / 3),
-    (item) => Math.floor(item + 2) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    3,
-    [2, 7]
-  ),
-  new Monkey(
-    7,
-    [90, 56],
-    // (item) => Math.floor((item * item) / 3),
-    (item) => Math.floor(item * item) % (5 * 2 * 19 * 7 * 17 * 13 * 3 * 11),
-    11,
-    [3, 5]
-  ),
-];
-
-// const monkeys = [
-//   new Monkey(
-//     0,
-//     [79, 98],
-//     // (item) => Math.floor((item * 19) / 3),
-//     (item) => Math.floor(item * 19),
-//     23,
-//     [2, 3]
-//   ),
-//   new Monkey(
-//     1,
-//     [54, 65, 75, 74],
-//     // (item) => Math.floor((item + 6) / 3),
-//     (item) => Math.floor(item + 6),
-//     19,
-//     [2, 0]
-//   ),
-//   new Monkey(
-//     2,
-//     [79, 60, 97],
-//     // (item) => Math.floor((item * item) / 3),
-//     (item) => Math.floor(item * item),
-//     13,
-//     [1, 3]
-//   ),
-//   new Monkey(
-//     3,
-//     [74],
-//     // (item) => Math.floor((item + 3) / 3),
-//     (item) => item + 3,
-//     17,
-//     [0, 1]
-//   ),
-// ];
-
-function part1(input) {
-  let count = 10_000;
+function solve(monkeys, maxCount) {
+  let count = maxCount;
   while (count > 0) {
-    monkeys.forEach((m) => m.turn());
+    monkeys.forEach((m) => m.turn(monkeys));
     count -= 1;
   }
   const result = monkeys.map((m) => m.count);
-  console.log(result);
-  result.sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
+  result.sort((a, b) => b - a);
   console.log(result);
   return result[0] * result[1];
 }
 
+function part1(input) {
+  const monkeys = input.reduce(
+    (r, { items, oper, mod, receivers }, index) => [
+      ...r,
+      new Monkey(index, items, (old) => Math.floor(oper(old) / 3), mod, receivers),
+    ],
+    []
+  );
+  return solve(monkeys, 20);
+}
+
 function part2(input) {
-  return 0;
+  // apply chinese reminder theorem on the "worry" operation
+  // https://en.wikipedia.org/wiki/Chinese_remainder_theorem
+
+  // calculate product of all mods
+  const modProduct = input.reduce((r, { mod }) => r * mod, 1);
+  const monkeys = input.reduce(
+    (r, { items, oper, mod, receivers }, index) => [
+      ...r,
+      new Monkey(index, items, (old) => Math.floor(oper(old)) % modProduct, mod, receivers),
+    ],
+    []
+  );
+  return solve(monkeys, 10_000);
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);
