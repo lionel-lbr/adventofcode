@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 11: xx part 1 & 2
+Day 11: Monkey in the Middle part 1 & 2
 
 https://adventofcode.com/2022/day/11
 */
@@ -12,21 +12,12 @@ const YEAR = '2022';
 const DAY = '11';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l);
-
-    return lines;
-  };
-
-  const parseALine = (line) => {};
-
-  try {
-    const lines = readRawIntput();
-    return lines.map((l) => {
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .map((l) => {
       const s = l.split(';');
       const r = {
         items: eval(s[0]),
@@ -36,9 +27,6 @@ function readInput(filename) {
       };
       return r;
     });
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 function Monkey(index, items, oper, mod, receivers) {
