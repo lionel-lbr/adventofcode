@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 14: xx part 1 & 2
+Day 14: Regolith Reservoir part 1 & 2
 
 https://adventofcode.com/2022/day/14
 */
@@ -12,29 +12,17 @@ const YEAR = '2022';
 const DAY = '14';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l);
-
-    return lines;
-  };
-
-  const parseALine = (line) => {
-    return line.split('->').map((pair) => {
-      const [x, y] = pair.trim().split(',');
-      return { x: Number(x), y: Number(y) };
-    });
-  };
-
-  try {
-    const lines = readRawIntput();
-    return lines.map((line) => parseALine(line));
-  } catch (err) {
-    console.error(err);
-  }
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .map((line) =>
+      line.split('->').map((pair) => {
+        const [x, y] = pair.trim().split(',');
+        return { x: Number(x), y: Number(y) };
+      })
+    );
 }
 
 function Map(width, height, part2 = false) {
@@ -52,7 +40,7 @@ function Map(width, height, part2 = false) {
   const canSlideLeft = (x, y) => !isVoid(x - 1, y + 1) && !isBlocked(x - 1, y + 1);
   const canSlideRight = (x, y) => !isVoid(x + 1, y + 1) && !isBlocked(x + 1, y + 1);
 
-  this.drawLine = (src, dst) => {
+  this.addWall = (src, dst) => {
     if (src.x === dst.x) {
       // vertical wall
       const startY = Math.min(src.y, dst.y);
@@ -66,7 +54,7 @@ function Map(width, height, part2 = false) {
     }
   };
 
-  this.addSand = (x, y) => {
+  this.pourSand = (x, y) => {
     let sX = x,
       sY = y;
     while (1) {
@@ -111,6 +99,22 @@ function Map(width, height, part2 = false) {
   };
 }
 
+function solve(height, width, droppingAbscissa, translateX, input, part2 = false) {
+  // setup the map and draw all walls
+  const map = new Map(width, height, part2);
+  input.forEach((line) =>
+    line.reduce((src, dst) => {
+      map.addWall({ x: translateX(src.x), y: src.y }, { x: translateX(dst.x), y: dst.y });
+      return dst;
+    })
+  );
+
+  // drop as many unit of sand as possible
+  let count = 0;
+  while (map.pourSand(translateX(droppingAbscissa), 0)) count += 1;
+  return count;
+}
+
 function part1(input) {
   // find min and max on each axes
   const [minX, maxX, maxY] = input.reduce(
@@ -124,35 +128,15 @@ function part1(input) {
 
   const height = maxY + 1;
   const width = maxX - minX + 1;
+  const droppingAbscissa = 500;
   const translateX = (x) => x - minX;
 
-  const droppingAbscissa = translateX(500);
-
-  const map = new Map(width, height);
-  input.forEach((line) =>
-    line.reduce((src, dst) => {
-      map.drawLine({ x: translateX(src.x), y: src.y }, { x: translateX(dst.x), y: dst.y });
-      return dst;
-    })
-  );
-
-  let count = 0;
-  while (map.addSand(droppingAbscissa, 0)) {
-    count += 1;
-  }
-  return count;
+  return solve(height, width, droppingAbscissa, translateX, input);
 }
 
 function part2(input) {
-  // find min and max on each axes
-  const [minX, maxX, maxY] = input.reduce(
-    (result, l) =>
-      l.reduce((result, { x, y }) => {
-        const [minX, maxX, maxY] = result;
-        return [Math.min(minX, x), Math.max(maxX, x), Math.max(maxY, y)];
-      }, result),
-    [Infinity, -Infinity, -Infinity]
-  );
+  // find max Y
+  const maxY = input.reduce((maxY, l) => l.reduce((maxY, { y }) => Math.max(maxY, y), maxY), -Infinity);
 
   const height = maxY + 1 + 2; // add 2 to the height
   const width = height * 2 - 1; // base of the triangle is twice its height minus 1
@@ -160,25 +144,14 @@ function part2(input) {
   // translate X based on the droppingAbscissa and half the width
   const translateX = (x) => x - (droppingAbscissa - Math.floor((width - 1) / 2));
 
-  const map = new Map(width, height, true);
-  input.forEach((line) =>
-    line.reduce((src, dst) => {
-      map.drawLine({ x: translateX(src.x), y: src.y }, { x: translateX(dst.x), y: dst.y });
-      return dst;
-    })
-  );
+  // add bottom wall
+  input.push([
+    { x: droppingAbscissa - Math.floor((width - 1) / 2), y: height - 1 },
+    { x: droppingAbscissa + Math.floor((width - 1) / 2), y: height - 1 },
+  ]);
 
-  // add floor ...
-  map.drawLine({ x: 0, y: height - 1 }, { x: width - 1, y: height - 1 });
-
-  let count = 0;
-  while (map.addSand(translateX(droppingAbscissa), 0)) {
-    count += 1;
-  }
-  count += 1; // for the
-  // map.render();
-  fs.writeFileSync(path.join(`${YEAR}`, `D${DAY}`, 'result.txt'), map.map.map((r) => r.join('')).join('\n'));
-  return count;
+  const count = solve(height, width, droppingAbscissa, translateX, input, true);
+  return count + 1; // last grain of sand ..
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);
