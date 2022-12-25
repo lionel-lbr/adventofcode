@@ -55,48 +55,37 @@ function Map(width, height, part2 = false) {
   };
 
   this.pourSand = (x, y) => {
-    let sX = x,
-      sY = y;
-    while (1) {
+    let sX = x;
+    let sY = y;
+    while (true) {
       if (canFall(sX, sY)) {
         sY += 1;
-        continue;
-      }
-      if (canSlideLeft(sX, sY)) {
+      } else if (canSlideLeft(sX, sY)) {
         sY += 1;
         sX -= 1;
-        continue;
-      }
-      if (canSlideRight(sX, sY)) {
+      } else if (canSlideRight(sX, sY)) {
         sY += 1;
         sX += 1;
-        continue;
       }
-
       // end game for part 2
-      if (part2 && sX === x && sY === y) {
+      else if (part2 && sX === x && sY === y) {
         this.map[sY][sX] = SAND;
         return false;
       }
-
       // falling in void --> end game
-      if (isVoid(sX - 1, sY + 1) || isVoid(sX, sY + 1) || isVoid(sX + 1, sY + 1)) return false;
-
+      else if (isVoid(sX - 1, sY + 1) || isVoid(sX, sY + 1) || isVoid(sX + 1, sY + 1)) return false;
       // can't longer fall --> set it in map
-      if (isBlocked(sX - 1, sY + 1) || isBlocked(sX, sY + 1) || isBlocked(sX + 1, sY + 1)) {
+      else if (isBlocked(sX - 1, sY + 1) || isBlocked(sX, sY + 1) || isBlocked(sX + 1, sY + 1)) {
         this.map[sY][sX] = SAND;
         return true;
       }
     }
   };
 
-  this.countSand = () => {
-    return this.map.reduce((count, row) => row.reduce((count, val) => (val === SAND ? count + 1 : count), count), 0);
-  };
+  this.countSand = () =>
+    this.map.reduce((count, row) => row.reduce((count, val) => (val === SAND ? count + 1 : count), count), 0);
 
-  this.render = () => {
-    this.map.forEach((row, y) => console.log(row.join('')));
-  };
+  this.render = () => this.map.forEach((row, y) => console.log(row.join('')));
 }
 
 function solve(height, width, droppingAbscissa, translateX, input, part2 = false) {
