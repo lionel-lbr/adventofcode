@@ -1,6 +1,6 @@
 """
 Advent Of Code 2022
-Day 12: xxx part 1 & 2
+Day 12: Hill Climbing Algorithm part 1 & 2
 
 https://adventofcode.com/2022/day/12
 """
