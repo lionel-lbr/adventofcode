@@ -1,0 +1,140 @@
+Minute 1:
+1 ore robot - 1 ore.
+
+Minute 2:
+1 ore robot - 2 ore.
+
+Minute 3:
++1 clay
+1 ore robot - 1 ore.
+
+Minute 4:
+1 ore robot - 2 ore.
+1 clay robot - 1 clay.
+
+Minute 5:
++1 clay
+1 ore robot - 1 ore.
+1 clay robot - 2 clay.
+
+Minute 6:
+1 ore robot - 2 ore.
+2 clay robot - 4 clay.
+
+Minute 7:
++1 clay
+1 ore robot - 1 ore.
+2 clay robot - 6 clay.
+
+Minute 8: 
+1 ore robot - 2 ore.
+3 clay robot - 9 clay.
+
+Minute 9:
++ 1 clay
+1 ore robot - 1 ore.
+3 clay robot - 12 clay.
+
+1 ore robot - 3 ore.
+3 clay robot - 12 clay.
+
+
+Minute 10:
+1 ore robot - 2 ore.
+4 clay robot - 16 clay.
+
+1 ore robot - 4 ore.
+3 clay robot - 15 clay.
+
+Minute 11:
+1 ore robot - 3 ore.
+4 clay robot - 20 clay.
+
+Minute 12:
++ 1 obsidian
+1 ore robot - 1 ore.
+4 clay robot - 10 clay.
+
+
+Minute 13:
+1 ore robot - 2 ore.
+4 clay robot - 14 clay.
+1 obsidian robot  - 1 obsidian
+
+Minute 14:
+1 ore robot - 3 ore.
+4 clay robot - 18 clay.
+1 obsidian robot  - 2 obsidian
+
+Minute 15:
++ 1 obsidian
+1 ore robot - 1 ore.
+4 clay robot - 8 clay.
+1 obsidian robot  - 3 obsidian
+
+Minute 16:
+1 ore robot - 2 ore.
+4 clay robot - 12 clay.
+2 obsidian robot  - 5 obsidian
+
+Minute 17:
+1 ore robot - 3 ore.
+4 clay robot - 16 clay.
+2 obsidian robot  - 7 obsidian
+
+Minute 18:
++ geode
+1 ore robot - 2 ore.
+4 clay robot - 20 clay.
+2 obsidian robot  - 2 obsidian
+
+Minute 19:
+1 ore robot - 3 ore.
+4 clay robot - 24 clay.
+2 obsidian robot  - 4 obsidian
+1 geode robot - 1 geode
+
+Minute 20:
++1 obsidian
+1 ore robot - 1 ore.
+4 clay robot - 14 clay.
+2 obsidian robot  - 6 obsidian
+1 geode robot - 2 geode
+
+Minute 21:
+1 ore robot - 2 ore.
+4 clay robot - 18 clay.
+3 obsidian robot  - 9 obsidian
+1 geode robot - 3 geode
+
+Minute 22:
++ 1 geode
+1 ore robot - 1 ore.
+4 clay robot - 22 clay.
+3 obsidian robot  - 5 obsidian
+1 geode robot - 4 geode
+
+
+Minute 23:
+1 ore robot - 2 ore.
+4 clay robot - 26 clay.
+3 obsidian robot  - 8 obsidian
+2 geode robot - 6 geode
+
+Minute 24:
++ 1 geode
+1 ore robot - 1 ore.
+4 clay robot - 30 clay.
+3 obsidian robot  - 4 obsidian
+2 geode robot - 8 geode
+
+
+1 geode = 7 obsidian + 2 ore = [98 clay + 21 ore] + 2 ore = 196 + 21 + 2 = 219 
+1 obsidian = 14 clay + 3 ore
+1 clay = 2 ore
+1 ore = 4 ore
+
+1 geode 
+1 obsidian
+1 clay 
+1 ore 
