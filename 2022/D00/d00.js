@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 0: xxx 1 & 2
+Day 0: xxx part 1 & 2
 
 https://adventofcode.com/2022/day/0
 */
