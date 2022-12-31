@@ -145,7 +145,7 @@ function solveButForce(input, MAX_ROCK_COUNT) {
   return map.length - topRowIndex - 1;
 }
 
-function solveWithCycleDectection(input, MAX_ROCK_COUNT) {
+function solveWithCycleDetection(input, MAX_ROCK_COUNT) {
   let rockY = 0;
   let rockX = 3;
 
@@ -240,10 +240,10 @@ function solveWithCycleDectection(input, MAX_ROCK_COUNT) {
 
 const input = readInput(`d${DAY}-sample.txt`);
 console.log(`Sample input Part 1: ${solveButForce(input, 2022)}`);
-console.log(`Sample input Part 1 (optimized): ${solveWithCycleDectection(input, 2022)}`);
-console.log(`Sample input Part 2: ${solveWithCycleDectection(input, 1_000_000_000_000)}`);
+console.log(`Sample input Part 1 (optimized): ${solveWithCycleDetection(input, 2022)}`);
+console.log(`Sample input Part 2: ${solveWithCycleDetection(input, 1_000_000_000_000)}`);
 
 const input2 = readInput(`d${DAY}-input.txt`);
 console.log(`Part 1: ${solveButForce(input2, 2022)}`);
-console.log(`Part 1 (optimized): ${solveWithCycleDectection(input2, 2022)}`);
-console.log(`Part 2: ${solveWithCycleDectection(input2, 1_000_000_000_000)}`);
+console.log(`Part 1 (optimized): ${solveWithCycleDetection(input2, 2022)}`);
+console.log(`Part 2: ${solveWithCycleDetection(input2, 1_000_000_000_000)}`);
