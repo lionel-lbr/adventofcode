@@ -56,7 +56,26 @@ const ROCKS = [
   ].reverse(),
 ];
 
-function solve(input, MAX_ROCK_COUNT) {
+function findSubset(list) {
+  for (let i = list.length - 1; i > 1; i--) {
+    const index1 = i;
+    const subArr1 = list.slice(index1, list.length);
+    const index2 = i - subArr1.length;
+    if (index2 < 0) return null;
+    const subArr2 = list.slice(index2, index2 + subArr1.length);
+    let k = 0;
+    while (k < subArr1.length) {
+      if (subArr1[k].gazIndex !== subArr2[k].gazIndex) break;
+      k++;
+    }
+    if (k === subArr1.length) {
+      return [index2, index1];
+    }
+  }
+  return null;
+}
+
+function solveButForce(input, MAX_ROCK_COUNT) {
   let rockY = 0;
   let rockX = 3;
 
@@ -86,10 +105,11 @@ function solve(input, MAX_ROCK_COUNT) {
   let count = 0;
   let gazIndex = -1;
   let topRowIndex = 0;
-  let height = 0;
+
   while (count < MAX_ROCK_COUNT) {
     // add a new rock
-    const rock = ROCKS[count % ROCKS.length];
+    const rockIndex = count % ROCKS.length;
+    const rock = ROCKS[rockIndex];
     const newBlankRowCount = rock[0].y + 1 + 3;
     if (newBlankRowCount < topRowIndex) {
       rockY = topRowIndex - newBlankRowCount;
@@ -104,9 +124,6 @@ function solve(input, MAX_ROCK_COUNT) {
     rockX = 3;
     while (1) {
       gazIndex = (gazIndex + 1) % input.length;
-      if (gazIndex === 0) {
-        console.log('gazIndex is 0');
-      }
       const direction = input[gazIndex];
       if (direction === '>' && canMoveRight(rock)) rockX += 1;
       else if (direction === '<' && canMoveLeft(rock)) rockX -= 1;
@@ -117,7 +134,81 @@ function solve(input, MAX_ROCK_COUNT) {
         for ({ x, y } of rock) {
           map[rockY + y][rockX + x] = '#';
         }
-        console.log(`Freeze rock - gazIndex ${gazIndex} count ${(count + 1) % ROCKS.length}`);
+        break;
+      }
+    }
+
+    topRowIndex = Math.min(topRowIndex, rockY);
+    count += 1;
+  }
+
+  return map.length - topRowIndex - 1;
+}
+
+function solveWithCycleDectection(input, MAX_ROCK_COUNT) {
+  let rockY = 0;
+  let rockX = 3;
+
+  const canMoveRight = (rock) => {
+    for ({ x, y } of rock) {
+      if (map[rockY + y][rockX + x + 1] !== '.') return false;
+    }
+    return true;
+  };
+
+  const canMoveLeft = (rock) => {
+    for ({ x, y } of rock) {
+      if (map[rockY + y][rockX + x - 1] !== '.') return false;
+    }
+    return true;
+  };
+
+  const canMoveDown = (rock) => {
+    for ({ x, y } of rock) {
+      if (map[rockY + y + 1][rockX + x] !== '.') return false;
+    }
+    return true;
+  };
+
+  const map = ['|-------|'.split('')];
+
+  let count = 0;
+  let gazIndex = -1;
+  let topRowIndex = 0;
+
+  let foundCycle = false;
+  let rowCount = 0;
+  const rockCycle = new Map();
+  for (i in ROCKS) rockCycle.set(Number(i), []);
+
+  while (count < MAX_ROCK_COUNT) {
+    // add a new rock
+    const rockIndex = count % ROCKS.length;
+    const rock = ROCKS[rockIndex];
+    const newBlankRowCount = rock[0].y + 1 + 3;
+    if (newBlankRowCount < topRowIndex) {
+      rockY = topRowIndex - newBlankRowCount;
+    } else if (newBlankRowCount > topRowIndex) {
+      for (let i = 0; i < newBlankRowCount - topRowIndex; i++) {
+        map.splice(0, 0, '#.......#'.split(''));
+      }
+      topRowIndex += newBlankRowCount - topRowIndex;
+      rockY = 0;
+    } else rockY = 0;
+
+    rockX = 3;
+    while (1) {
+      gazIndex = (gazIndex + 1) % input.length;
+      const direction = input[gazIndex];
+      if (direction === '>' && canMoveRight(rock)) rockX += 1;
+      else if (direction === '<' && canMoveLeft(rock)) rockX -= 1;
+      if (canMoveDown(rock)) {
+        rockY += 1;
+      } else {
+        // "freeze" the block
+        for ({ x, y } of rock) {
+          map[rockY + y][rockX + x] = '#';
+        }
         break;
       }
     }
@@ -125,21 +216,34 @@ function solve(input, MAX_ROCK_COUNT) {
     topRowIndex = Math.min(topRowIndex, rockY);
     count += 1;
 
-    if (gazIndex === 17 && count % ROCKS.length === 0) {
-      const cycleCount = Math.floor(MAX_ROCK_COUNT / count);
-      const cycleReminderCount = MAX_ROCK_COUNT - cycleCount * count;
-      height += (map.length - 1 - topRowIndex) * cycleCount;
-      count = cycleCount * count;
-      console.log(`${cycleCount} - ${cycleReminderCount}`);
-      map.splice(0, map.length - 1);
-      topRowIndex = 0;
+    // will try to find a cycle within gazIndex and rock type
+    // record step in order to detect cycle
+    rockCycle.get(rockIndex).push({ gazIndex, rockCount: count, rowCount: map.length - 1 - topRowIndex });
+    if (!foundCycle) {
+      // get the list of gazIndex for a given rock type
+      const l = rockCycle.get(rockIndex);
+      // check for cycle
+      const subsetIndexes = findSubset(l);
+      if (subsetIndexes !== null) {
+        foundCycle = true;
+        const [startCycleIndex, endCycleIndex] = subsetIndexes;
+        const cycleRowCount = l[endCycleIndex].rowCount - l[startCycleIndex].rowCount;
+        const cycleRockCount = l[endCycleIndex].rockCount - l[startCycleIndex].rockCount;
+        const cycleCount = Math.floor((MAX_ROCK_COUNT - count) / cycleRockCount);
+        count += cycleCount * cycleRockCount;
+        rowCount = cycleRowCount * cycleCount;
+      }
     }
   }
-
-  return map.length + height - topRowIndex;
+  return map.length - topRowIndex - 1 + rowCount;
 }
 
-//const input = readInput(`d${DAY}-sample.txt`);
-const input = readInput(`d${DAY}-input.txt`);
-console.log(`Part 1: ${solve(input, 2022)}`);
-console.log(`Part 2: ${solve(input, 1_000_000_000_000)}`);
+const input = readInput(`d${DAY}-sample.txt`);
+console.log(`Sample input Part 1: ${solveButForce(input, 2022)}`);
+console.log(`Sample input Part 1 (optimized): ${solveWithCycleDectection(input, 2022)}`);
+console.log(`Sample input Part 2: ${solveWithCycleDectection(input, 1_000_000_000_000)}`);
+
+const input2 = readInput(`d${DAY}-input.txt`);
+console.log(`Part 1: ${solveButForce(input2, 2022)}`);
+console.log(`Part 1 (optimized): ${solveWithCycleDectection(input2, 2022)}`);
+console.log(`Part 2: ${solveWithCycleDectection(input2, 1_000_000_000_000)}`);
