@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 15: xx part 1 & 2
+Day 15: Beacon Exclusion Zone part 1 & 2
 
 https://adventofcode.com/2022/day/15
 */
@@ -12,91 +12,112 @@ const YEAR = '2022';
 const DAY = '15';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l);
-
-    return lines;
-  };
-
-  const parseALine = (line) => {};
-
-  try {
-    const lines = readRawIntput();
-    return lines
-      .map((l) =>
-        l
-          .split(' ')
-          .filter((s) => s.startsWith('x=') || s.startsWith('y='))
-          .map((w) => {
-            let d = w.split('=')[1];
-            if (d.endsWith(',') || d.endsWith(':')) d = d.slice(0, -1);
-            return Number(d);
-          })
-      )
-      .map((s) => ({
-        sensor: { x: s[0], y: s[1] },
-        beacon: { x: s[2], y: s[3] },
-        distance: Math.abs(s[2] - s[0]) + Math.abs(s[3] - s[1]),
-      }));
-  } catch (err) {
-    console.error(err);
-  }
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .map((l) =>
+      l
+        .split(' ')
+        .filter((s) => s.startsWith('x=') || s.startsWith('y='))
+        .map((w) => {
+          let d = w.split('=')[1];
+          if (d.endsWith(',') || d.endsWith(':')) d = d.slice(0, -1);
+          return Number(d);
+        })
+    )
+    .map((s) => ({
+      sensor: { x: s[0], y: s[1] },
+      beacon: { x: s[2], y: s[3] },
+      distance: Math.abs(s[2] - s[0]) + Math.abs(s[3] - s[1]),
+    }));
 }
 
-const overlap = (seg1, seg2) => {
-  // no overlap
-  if (seg1.left > seg2.right || seg2.left > seg1.right) return [seg1, seg2];
-};
 function part1(input) {
-  const ROW = 2000000;
+  const ROW = 2_000_000;
+
+  // list of sensors which cover the ROW
   const sensors = input.filter(
     ({ sensor, distance }) =>
       (sensor.y < ROW && sensor.y + distance >= ROW) || (sensor.y > ROW && sensor.y - distance <= ROW)
   );
-  const intervals = sensors.reduce((intervals, { sensor, distance }) => {
+
+  // for each sensor calculate the x coverage
+  const intervals = sensors.reduce((intervals, { sensor, beacon, distance }) => {
     const dy = Math.abs(ROW - sensor.y);
     const dx = Math.abs(distance - dy);
     const left = sensor.x - dx;
     const right = sensor.x + dx;
     intervals.push({ left, right });
+
+    // push sensor and beacon position as an interval
+    intervals.push({ left: sensor.x, right: sensor.x });
+    intervals.push({ left: beacon.x, right: beacon.x });
     return intervals;
   }, []);
 
   // sort intervals by left ascending
   intervals.sort((sa, sb) => sa.left - sb.left);
-  // const result = [];
+
+  // merge intervals
   const interval = intervals.reduce((s1, s2) => {
     // s1 contains s2
     if (s1.right >= s2.right) return s1;
     // extend s1 with s2
     if (s1.right >= s2.left || s1.right + 1 === s2.left) return { left: s1.left, right: s2.right };
-    // s1 and s2 are separated
-    // result.push(s1);
-    return s2; // work with s2 now ...
+    // s1 and s2 are separated, there is a gap ...
+    return s2; // work with s2 now, just for reduce to continue ...
   });
-  // result.push(s);
-  // console.log(result.length);
-  const intervalSize = interval.right - interval.left + 1;
-  const beacons = input.reduce((r, { beacon }) => {
-    if (beacon.y === ROW && beacon.x >= interval.left && beacon.x <= interval.right) r.add(`${beacon.x}:${beacon.y}`);
-    return r;
-  }, new Set());
-  return intervalSize - beacons.size;
+  // should not be any gap ...
+  const intervalSize = interval.right - interval.left;
+  return intervalSize;
 }
 
 function part2(input) {
-  const MAX_ROW = 4_000_000;
-  for ({ s, d } in input) {
-    for (let x = Math.max(0, s.x - d); x < Math.min(MAX_ROW, s.x + d); x += 1) {
-      for (let y = Math.min(0, s.y - d); y < Math.max(MAX_ROW, s.y + d); y += 1) {}
+  const startTime = performance.now();
+  const MAX_COORDINATE = 4_000_000;
+  // const MAX_DISTANCE = 20;
+  const intervals = new Map();
+  for (let i = 0; i <= MAX_COORDINATE; i++) intervals.set(i, []);
+
+  input.forEach(({ sensor, beacon, distance }) => {
+    for (let y = Math.max(0, sensor.y - distance); y <= Math.min(MAX_COORDINATE, sensor.y + distance); y += 1) {
+      const dy = Math.abs(y - sensor.y);
+      const dx = Math.abs(distance - dy);
+      const left = Math.max(0, sensor.x - dx);
+      const right = Math.min(MAX_COORDINATE, sensor.x + dx);
+      intervals.get(y).push({ left, right });
+    }
+
+    // add sensor and beacon position as an interval
+    if (sensor.y >= 0 && sensor.y <= MAX_COORDINATE && sensor.x >= 0 && sensor.x <= MAX_COORDINATE)
+      intervals.get(sensor.y).push({ left: sensor.x, right: sensor.x });
+    if (beacon.y >= 0 && beacon.y <= MAX_COORDINATE && beacon.x >= 0 && beacon.x <= MAX_COORDINATE)
+      intervals.get(beacon.y).push({ left: beacon.x, right: beacon.x });
+  });
+
+  for (let y = 0; y <= MAX_COORDINATE; y++) {
+    // sort intervals by left ascending
+    intervals.get(y).sort((sa, sb) => sa.left - sb.left);
+
+    // merge interval until we find a "gap"
+    let result = null;
+    intervals.get(y).reduce((s1, s2) => {
+      // s1 contains s2
+      if (s1.right >= s2.right) return s1;
+      // extend s1 with s2
+      if (s1.right >= s2.left || s1.right + 1 === s2.left) return { left: s1.left, right: s2.right };
+      // s1 and s2 are separated, found a gap
+      result = 4_000_000 * (s1.right + 1) + y;
+      console.log(`Found a gap at row ${y}: ${s1.right}-${s2.left} - result: ${result}`);
+      return s2; // work with s2 now, just for reduce to continue ...
+    });
+    if (result !== null) {
+      console.log(`P2 execution time:${performance.now() - startTime}`);
+      return result;
     }
   }
-
-  return 0;
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);
