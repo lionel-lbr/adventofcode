@@ -12,48 +12,53 @@ const YEAR = '2022';
 const DAY = '23';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l)
-      .map((l) => l.split(''));
-    return lines;
-  };
-
-  const parseALine = (line) => {};
-
-  try {
-    const lines = readRawIntput();
-    return lines;
-  } catch (err) {
-    console.error(err);
-  }
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .map((l) => l.split(''));
 }
 
-function part1(input) {
+function solve(input, maxIterationCount) {
   const map = input.map((l) => [...l]);
-  const height = map.length;
-  const width = map[0].length;
-
+  const isEmptyRow = (index) => map[index].every((c) => c === '.');
+  const isEmptyCol = (index) => map.every((row) => row[index] === '.');
   const canGoNorth = ({ x, y }) => {
-    if (y === 0 || x === 0 || x + 1 === width) return false;
+    if (y === 0 || x === 0 || x + 1 === map[0].length) return false;
     return map[y - 1][x - 1] === '.' && map[y - 1][x] === '.' && map[y - 1][x + 1] === '.';
   };
   const canGoSouth = ({ x, y }) => {
-    if (y >= height - 1 || x === 0 || x + 1 === width) return false;
+    if (y >= map.length - 1 || x === 0 || x + 1 === map[0].length) return false;
     return map[y + 1][x - 1] === '.' && map[y + 1][x] === '.' && map[y + 1][x + 1] === '.';
   };
   const canGoWest = ({ x, y }) => {
-    if (x === 0 || y === 0 || y + 1 == height) return false;
-    return map[y + 1][x - 1] === '.' && map[y][x - 1] === '.' && map[y + 1][x - 1] === '.';
+    if (x === 0 || y === 0 || y + 1 === map.length) return false;
+    return map[y + 1][x - 1] === '.' && map[y][x - 1] === '.' && map[y - 1][x - 1] === '.';
   };
   const canGoEast = ({ x, y }) => {
-    if (x >= width - 1 || y === 0 || y + 1 === height) return false;
-    return map[y + 1][x + 1] === '.' && map[y][x + 1] === '.' && map[y + 1][x + 1] === '.';
+    if (x >= map[0].length - 1 || y === 0 || y + 1 === map.length) return false;
+    return map[y + 1][x + 1] === '.' && map[y][x + 1] === '.' && map[y - 1][x + 1] === '.';
   };
+  const isIsolated = ({ x, y }) => {
+    const pos = [
+      [x - 1, y - 1],
+      [x, y - 1],
+      [x + 1, y - 1],
+      [x - 1, y],
+      [x + 1, y],
+      [x - 1, y + 1],
+      [x, y + 1],
+      [x + 1, y + 1],
+    ];
 
+    for (p of pos) {
+      const [px, py] = p;
+      if (px < 0 || px >= map[0].length || py < 0 || py >= map.length) continue;
+      if (map[py][px] === '#') return false;
+    }
+    return true;
+  };
   const canMoveFcts = [canGoNorth, canGoSouth, canGoWest, canGoEast];
   const moveFcts = [
     ({ x, y }) => ({ x, y: y - 1 }),
@@ -62,21 +67,23 @@ function part1(input) {
     ({ x, y }) => ({ x: x + 1, y }),
   ];
 
-  let iter = 0;
-  while (true) {
-    // increase map size
-    // insert top and bottom row
-    // map.splice(0, 0, new Array(map[0].length).fill('.'));
-    // map.splice(map.length, 0, new Array(map[0].length).fill('.'));
-    // map.forEach((row) => {
-    //   row.splice(0, 0, '.');
-    //   row.push('.');
-    // });
+  let iterCount = 0;
+  while (iterCount < maxIterationCount) {
+    // add empty row or col if necessary
+    if (!isEmptyRow(map.length - 1)) map.push(new Array(map[0].length).fill('.'));
+    if (!isEmptyRow(0)) map.splice(0, 0, new Array(map[0].length).fill('.'));
+    const needAddLeftCol = !isEmptyCol(0);
+    const needAddRightCol = !isEmptyCol(map[0].length - 1);
+    map.forEach((row) => {
+      if (needAddRightCol) row.push('.');
+      if (needAddLeftCol) row.splice(0, 0, '.');
+    });
 
+    // check which elf can move
     const canMoveElfs = [];
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (map[y][x] === '.') continue;
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[0].length; x++) {
+        if (map[y][x] === '.' || isIsolated({ x, y })) continue;
         for (let i = 0; i < 4; i++) {
           if (canMoveFcts[i]({ x, y })) {
             canMoveElfs.push({ org: { x, y }, dst: moveFcts[i]({ x, y }) });
@@ -88,6 +95,7 @@ function part1(input) {
 
     if (canMoveElfs.length === 0) break;
 
+    // move the Elf if doesn't collide with oen another.
     while (true) {
       let end = true;
       for (let i = 0; i < canMoveElfs.length; i++) {
@@ -112,27 +120,29 @@ function part1(input) {
       if (end) break;
     }
 
+    // display # pos
+    // map.forEach((row, y) =>
+    //   row.forEach((c, x) => {
+    //     if (c === '#') console.log(`${x}:${y}`);
+    //   })
+    // );
+
     canMoveFcts.push(canMoveFcts.shift());
     moveFcts.push(moveFcts.shift());
-    iter += 1;
-    if (iter === 10) {
-      console.log('end of iterations');
-      while (map[0].every((c) => c === '.')) map.splice(0, 1);
-      while (map[map.length - 1].every((c) => c === '.')) map.splice(map.length - 1, 1);
-      while (map.every((row) => row[0] === '.')) map.forEach((row) => row.splice(0, 1));
-      while (map.every((row) => row[row.length - 1] === '.')) map.forEach((row) => row.splice(row.length - 1, 1));
-      const result = map.reduce((count, row) => row.reduce((count, c) => (c === '.' ? count + 1 : count), count), 0);
-      return result;
-    }
+
+    iterCount++;
   }
-  return 0;
+
+  // remove empty line/col
+  while (isEmptyRow(map.length - 1)) map.pop();
+  while (isEmptyRow(0)) map.splice(0, 1);
+  while (isEmptyCol(map[0].length - 1)) map.forEach((row) => row.pop());
+  while (isEmptyCol(0)) map.forEach((row) => row.splice(0, 1));
+  const result = map.reduce((count, row) => row.reduce((count, c) => (c === '.' ? count + 1 : count), count), 0);
+  return [iterCount + 1, result];
 }
 
-function part2(input) {
-  return 0;
-}
-
-const input = readInput(`d${DAY}-sample_1.txt`);
-//const input = readInput(`d${DAY}-input.txt`);
-console.log(`Part 1: ${part1(input)}`);
-console.log(`Part 2: ${part2(input)}`);
+//const input = readInput(`d${DAY}-sample_2.txt`);
+const input = readInput(`d${DAY}-input.txt`);
+console.log(`Part 1: ${solve(input, 10)}`);
+console.log(`Part 2: ${solve(input, Infinity)}`);
