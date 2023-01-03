@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2022
-Day 16: xx part 1 & 2
+Day 16: Proboscidea Volcanium part 1 & 2
 
 https://adventofcode.com/2022/day/16
 */
@@ -12,130 +12,200 @@ const YEAR = '2022';
 const DAY = '16';
 
 function readInput(filename) {
-  const readRawIntput = () => {
-    const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
-    const lines = data
-      .toString()
-      .split(`\n`)
-      .filter((l) => l);
+  return fs
+    .readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename))
+    .toString()
+    .split(`\n`)
+    .filter((l) => l)
+    .reduce((map, l) => {
+      const nodeString = l.split(' ');
+      const node = {
+        name: nodeString[1],
+        flow: Number(nodeString[4].split('=')[1].slice(0, -1)),
+        childs: [],
+      };
+      for (let i = 9; i < nodeString.length; i++) {
+        const s = nodeString[i];
+        if (s.endsWith(',')) node.childs.push(s.slice(0, -1));
+        else node.childs.push(s);
+      }
 
-    return lines;
-  };
-
-  const parseALine = (line) => {};
-
-  try {
-    const lines = readRawIntput();
-    return lines.reduce((map, l) => {
-      const node = l.split(' ').reduce((node, s, index) => {
-        if (index === 1) {
-          node.name = s;
-          node.childs = [];
-        } else if (index === 4) node.flow = Number(s.split('=')[1].slice(0, -1));
-        else if (index > 8) {
-          if (s.endsWith(',')) node.childs.push(s.slice(0, -1));
-          else node.childs.push(s);
-        }
-        return node;
-      }, {});
       map.set(node.name, node);
       return map;
     }, new Map());
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 function PriorityQueue() {
-  this.queue = [];
+  const queue = [];
   let needSort = true;
 
-  this.add = ({ d, node }) => {
-    const i = this.queue.findIndex(({ n: node }) => n.name === node.name);
-    if (i > -1) {
-      this.queue[i] = { d, node };
-    } else this.queue.push({ d, node });
+  this.add = (pos) => {
+    queue.push(pos);
     needSort = true;
   };
 
   this.pop = () => {
     if (needSort) {
-      this.queue.sort((n1, n2) => {
-        // if (n2.f === n1.f) return n2.h - n1.h;
-        // else return n2.f - n1.f;
-        return n2.d - n1.d;
-      });
+      queue.sort((n1, n2) => n2.g - n1.g);
       needSort = false;
     }
-
-    return this.queue.pop();
+    return queue.pop();
   };
 
-  this.find = (node) => {
-    const i = this.queue.findIndex(({ n: node }) => n.name === node.name);
-    if (i > -1) {
-      return this.queue[i];
-    }
-  };
-
-  this.isEmpty = () => {
-    return this.queue.length > 0 ? false : true;
-  };
+  this.isEmpty = () => (queue.length > 0 ? false : true);
 }
 
-const getShortestPath = (src, dst, graph) => {
+function solveDijkstra(graph, start, end) {
   const visited = new Set();
   const priorityQueue = new PriorityQueue();
 
-  priorityQueue.add(src);
+  // implement Dijkstra's Algorithm
+  const startNode = graph.get(start);
+  startNode.g = 0;
+  priorityQueue.add(startNode);
   while (!priorityQueue.isEmpty()) {
-    const { d, node } = priorityQueue.pop();
-    if (node.name === dst.name) {
-      return visited;
-    }
+    const q = priorityQueue.pop();
 
-    if (visited.has(node)) continue;
-    visited.add(node);
-    const neighbours = node.childs;
+    // reach destination
+    if (q.name === end) return q.g; // return steps count
+
+    if (visited.has(q.name)) continue;
+    visited.add(q.name);
+    const neighbours = q.childs;
     for (n of neighbours) {
-      if (visited.has(n)) continue;
-      priorityQueue.add({ d: d + 1, node: graph.get(n) });
+      if (visited.has(n.name)) continue;
+      const node = graph.get(n);
+      node.g = q.g + 1;
+      priorityQueue.add(node);
     }
   }
-};
+}
 
-function permute(permutation) {
-  var length = permutation.length,
-    result = [permutation.slice()],
-    c = new Array(length).fill(0),
-    i = 1,
-    k,
-    p;
-
-  while (i < length) {
-    if (c[i] < i) {
-      k = i % 2 && c[i];
-      p = permutation[i];
-      permutation[i] = permutation[k];
-      permutation[k] = p;
-      ++c[i];
-      i = 1;
-      result.push(permutation.slice());
-    } else {
-      c[i] = 0;
-      ++i;
+function generateShortestPathToNodeWithFlow(nodeWithFlow) {
+  const shortestPathMap = new Map();
+  for (let i = 0; i < nodeWithFlow.length; i++) {
+    const src = input.get(nodeWithFlow[i]).name;
+    for (let j = 0; j < nodeWithFlow.length; j++) {
+      const dst = input.get(nodeWithFlow[j]).name;
+      if (src === dst || dst === 'AA') continue;
+      const d = solveDijkstra(input, src, dst);
+      shortestPathMap.set(`${src}->${dst}`, d);
     }
   }
-  return result;
+  return shortestPathMap;
 }
 
 function part1(input) {
+  console.log('Part 1 ...');
+  const startTime = performance.now();
   const nodeWithFlow = [...input.keys()].filter((k) => input.get(k).flow > 0);
-  return 0;
+  nodeWithFlow.splice(0, 0, 'AA');
+  const shortestPathMap = generateShortestPathToNodeWithFlow(nodeWithFlow);
+
+  const dfs = (currentValve, currentFlow, minutes, valvesToOpen) => {
+    if (minutes <= 0) return currentFlow;
+
+    const node = input.get(currentValve);
+    if (node.flow > 0) {
+      // open it ...
+      minutes -= 1;
+      currentFlow += node.flow * minutes;
+    }
+
+    let localFlow = currentFlow;
+    for (valve of valvesToOpen) {
+      const k = `${currentValve}->${valve}`;
+      const d = shortestPathMap.get(k);
+      const flow = dfs(
+        valve,
+        currentFlow,
+        minutes - d,
+        valvesToOpen.filter((v) => v !== valve)
+      );
+      localFlow = Math.max(localFlow, flow);
+    }
+
+    return localFlow;
+  };
+
+  // remove "AA"
+  nodeWithFlow.shift();
+  const result = dfs('AA', 0, 30, nodeWithFlow);
+  console.log(`Execution time: ${(performance.now() - startTime) / 1000}`);
+  return result;
 }
 
 function part2(input) {
-  return 0;
+  console.log('Part 2 ...');
+  const startTime = performance.now();
+  const nodeWithFlow = [...input.keys()].filter((k) => input.get(k).flow > 0);
+  nodeWithFlow.splice(0, 0, 'AA');
+  const shortestPathMap = generateShortestPathToNodeWithFlow(nodeWithFlow);
+
+  const dfs = (currentValves, pressure, minutes, valvesToOpen) => {
+    let [minute0, minute1] = minutes;
+    if (minute0 === 0 && minute1 === 0) {
+      return pressure;
+    }
+
+    const [currentValve0, currentValve1] = currentValves;
+    const node0 = input.get(currentValve0);
+    if (node0.flow > 0) {
+      // open it ...
+      minute0 = Math.max(0, minute0 - 1);
+      pressure += node0.flow * minute0;
+    }
+
+    const node1 = input.get(currentValve1);
+    if (node1.flow > 0) {
+      // open it ...
+      minute1 = Math.max(0, minute1 - 1);
+      pressure += node1.flow * minute1;
+    }
+
+    // one of us reach the end of time, no need to continue
+    if (minute0 === 0 || minute1 === 0) {
+      return pressure;
+    }
+
+    let maxPressure = pressure;
+    // generate list of all possibles pairs of valves to open
+    const listOfPairs = [];
+    for (let i = 0; i < valvesToOpen.length - 1; i++) {
+      for (let j = i + 1; j < valvesToOpen.length; j++) {
+        listOfPairs.push([valvesToOpen[i], valvesToOpen[j]]);
+      }
+    }
+    for (const valves of listOfPairs) {
+      // remove the pair of valves from the list of valves to open ...
+      const remainingValvesToOpen = valvesToOpen.filter((v) => v !== valves[0] && v !== valves[1]);
+
+      for (let i = 0; i < 2; i++) {
+        const [valve0, valve1] = valves;
+        const d0 = shortestPathMap.get(`${currentValve0}->${valve0}`);
+        const d1 = shortestPathMap.get(`${currentValve1}->${valve1}`);
+
+        // no need to recurse if node can't be reached within remaining time
+        if (d0 >= minute0 && d1 >= minute1) continue;
+
+        // recurse down the tree
+        const p = dfs(valves, pressure, [Math.max(0, minute0 - d0), Math.max(0, minute1 - d1)], remainingValvesToOpen);
+        maxPressure = Math.max(maxPressure, p);
+
+        // swap the 2 valves and iterate again
+        const t = valves[0];
+        valves[0] = valves[1];
+        valves[1] = t;
+      }
+    }
+    return maxPressure;
+  };
+
+  // remove "AA"
+  nodeWithFlow.shift();
+  const result = dfs(['AA', 'AA'], 0, [26, 26], nodeWithFlow);
+  console.log(`Execution time: ${(performance.now() - startTime) / 1000}`);
+  return result;
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);
