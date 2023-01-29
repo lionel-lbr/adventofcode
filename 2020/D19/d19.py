@@ -1,6 +1,6 @@
 """
 Advent Of Code 2020
-Day 19: xxx part 1 & 2
+Day 19: Monster Messages part 1 & 2
 
 https://adventofcode.com/2020/day/19
 """
@@ -51,7 +51,7 @@ def reduceRule(crid, seq, rule):
       # for i, n in enumerate(nn):
       #   nn[i] = n.replace(p, seq[rCount], 1)
 
-      # nn = [r.replace(p, e, i + 1) for i in range(n) for e in seq]
+      # nn = [r.replace(p, e, i + 1) for i in range(len(n)) for e in seq]
       # reduced.extend(n1.replace(p, e) for n1 in nn for e in seq)
       # print(f"{reduced}")
     else:
@@ -85,9 +85,9 @@ def part1(rules, messages):
     aRules[crid] = None
 
   rules = aRules[0][1]
-  m = tuple(m for m in messages if len(m) == 24 and m in rules)
-  m = set(m)
-  r = set(rules).intersection(m)
+  # m = tuple(m for m in messages if len(m) == 24 and m in rules)
+  # m = set(messages)
+  r = set(rules).intersection(set(messages))
   result = len(r)
 
   print(f"Part 1 time: {pfc() - startTime:.4}")

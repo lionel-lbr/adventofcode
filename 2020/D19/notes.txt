@@ -1,0 +1,60 @@
+0: 8 11 -> 42 42 31
+8: 42
+11: 42 31
+
+
+8: 42 | 42 8
+11: 42 31 | 42 11 31
+0: 
+42 - 42 31         => 15 
+42 - 42 (11) 31    
+42 (8) - 42 31     => 20, 25, 30, 35 .... 
+42 (8) - 42 (11) 31 
+
+
+
+8 -> 5
+11 -> 10
+0 -> 15
+
+
+  42    42   42     ?     31    31
+babbb-baabb-bbbab-bbbbb-aabaa-abaaa
+
+  42    42   42                      31  
+aaaab-baabb-aaaaa-aabbb-abbba-aabba-abaaa
+
+ 42    42    42     42   42     31   31    31    31
+aaabb-bbbba-aaaba-ababa-ababa-bbaba-aabba-babab-abaaa
+
+bbbbb-bbaaa-abbbb-aaabb-abaaa
+
+bbbababbbbaaaaaaaabbababaaababaabab
+
+  42   42    31 
+ababa-aaaaa-baaab
+
+ababa-aaaab-bbaba
+
+baabbaaaabbaaaababbaababb
+abbbbabbbbaaaababbbbbbaaaababb
+
+aaaaabbaab-aaaaa-babaa
+aabbbbbaabbbaaaaaabbbbbababaaa-aabba-aabba
+bbabb-bbaab-aabba
+
+42:  "babbb" 5
+
+
+
+
+11:
+42 31 
+42 42 31 31 
+42 42 11 31 31
+
+42 42 31
+42 42 11 31
+42 8 42 31
+42 8 42 11 31 
+
