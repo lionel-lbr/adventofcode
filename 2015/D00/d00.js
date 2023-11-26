@@ -2,7 +2,7 @@
 Advent Of Code 2015
 Day x: --- part 1 & 2
 
-https://adventofcode.com/
+https://adventofcode.com/2015/day/x
 */
 
 const fs = require('fs');
