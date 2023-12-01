@@ -80,7 +80,7 @@ function part2(input) {
     nine: 9,
   };
 
-  const result = input.reduce((r, s, i) => {
+  const result = input.reduce((r, s) => {
     let firstDigit = intToFind.reduce(
       (digitAndIndex, currentDigit) => {
         const index = s.indexOf(currentDigit);
@@ -104,7 +104,6 @@ function part2(input) {
     );
 
     lastDigit = intVal[lastDigit.digit];
-    console.log(`processing str:${i}:${s} => ${firstDigit}${lastDigit} => ${r + firstDigit * 10 + lastDigit}`);
     return r + firstDigit * 10 + lastDigit;
   }, 0);
   return result;
