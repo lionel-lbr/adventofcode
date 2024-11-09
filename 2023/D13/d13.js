@@ -1,8 +1,8 @@
 /*
 Advent Of Code 2023
-Day x: --- part 1 & 2
+Day 13: Point of Incidence part 1 & 2
 
-https://adventofcode.com/2023/day/x
+https://adventofcode.com/2023/day/13
 */
 
 const fs = require('fs');
