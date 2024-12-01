@@ -11,6 +11,16 @@ const path = require('path');
 const YEAR = '2024';
 const DAY = '01';
 
+function elapsedTime(name, fct, input) {
+  const startTime = performance.now();
+  const result = fct(input);
+  const elapsed = performance.now() - startTime;
+  console.log(
+    `${name} time: ${Math.floor(elapsed / 60000)}:${Math.floor((elapsed % 60000) / 1000)}:${Math.floor(elapsed % 1000)}`
+  );
+  console.log(`${name} result: ${result}`);
+}
+
 function readInput(filename) {
   const readRawInput = () => {
     const data = fs.readFileSync(path.join(`${YEAR}`, `D${DAY}`, filename));
@@ -21,24 +31,11 @@ function readInput(filename) {
       .map((l) => l.split('   ').map((v) => parseInt(v)));
     return input;
   };
-
-  const parseALine = (line) => {};
-
   try {
     return readRawInput();
   } catch (err) {
     console.error(err);
   }
-}
-
-function elapsedTime(name, fct, input) {
-  const startTime = performance.now();
-  const result = fct(input);
-  const elapsed = performance.now() - startTime;
-  console.log(
-    `${name} time: ${Math.floor(elapsed / 60000)}:${Math.floor((elapsed % 60000) / 1000)}:${Math.floor(elapsed % 1000)}`
-  );
-  console.log(`${name} result: ${result}`);
 }
 
 function part1(input) {

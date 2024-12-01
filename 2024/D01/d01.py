@@ -10,18 +10,18 @@ import os
 YEAR = "2024"
 DAY = "01"
 
-def readInput(filename):
-  with open(os.path.join(f"{YEAR}", f"D{DAY}", filename)) as f:
-    lines = f.readlines()
-  input = ((int(e[0]), int(e[1])) for e in (e.split("   ") for e in (d.strip('\n') for d in lines)))
-  return tuple(input)
-
 def elapsedTime(name, fct, input) :
   startTime = pfc()
   result = fct(input)
   print(f"${name} time: {pfc() - startTime:.4} s")
   print(f"${name} result: {result}")
 
+
+def readInput(filename):
+  with open(os.path.join(f"{YEAR}", f"D{DAY}", filename)) as f:
+    lines = f.readlines()
+  input = ((int(e[0]), int(e[1])) for e in (e.split("   ") for e in (d.strip('\n') for d in lines)))
+  return tuple(input)
 
 def part1(input):
   tuple1, tuple2  = zip(*input)
