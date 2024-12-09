@@ -84,6 +84,7 @@ function generatePermutations(list) {
   permutations(0);
   return result;
 }
+
 function resolveRule(rule1, rule2) {
   const { id } = rule1;
 
@@ -173,6 +174,9 @@ function part2(rules, messages) {
   while (true) {
     resolveRule(rule8, rule0);
     resolveRule(rule11, rule0);
+    const set = new Set(rule0.rules.map((r) => r.join('+')));
+    rule0.rules = [...set].map((r) => r.split('+').map((c) => (!isNaN(parseInt(c, 10)) ? parseInt(c, 10) : c)));
+
     rule0.rules = rule0.rules.map((rule) => {
       if (rule.every((s) => !Number.isInteger(s))) return [rule.join('')];
       return rule;
@@ -182,7 +186,8 @@ function part2(rules, messages) {
     if (result.length === 0) break;
     matchedMessages.push(...result);
     // remove resulved rules from rule 0
-    rule0.rules = rule0.rules.filter((r) => r.some((v) => Number.isInteger(v)));
+    // rule0.rules = rule0.rules.filter((r) => r.some((v) => Number.isInteger(v)));
+    // .filter((r) => !(r[0] === 8 && r[1] === 11));
   }
 
   return matchedMessages.length;
@@ -191,6 +196,7 @@ function part2(rules, messages) {
 let input = readInput(`d${DAY}-input.txt`);
 let sample1 = readInput(`d${DAY}-sample1.txt`);
 let sample2 = readInput(`d${DAY}-sample2.txt`);
+
 console.log(`Part 1 sample1 : ${part1(sample1.rules, sample1.messages)}`);
 console.log(`Part 1 sample2 : ${part1(sample2.rules, sample2.messages)}`);
 console.log(`Part 1 input: ${part1(input.rules, input.messages)}`);
