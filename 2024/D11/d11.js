@@ -38,52 +38,33 @@ function readInput(filename) {
 
 function part1(input, blink = 25) {
   const lruCache = new Map();
-  const key = (blink, value) => `${blink}:${value}`;
+  const DFS = (blink, currentList) => {
+    const k = JSON.stringify({ blink, currentList });
+    if (lruCache.has(k)) return lruCache.get(k);
 
-  const parseAndBreak = (blink, currentList) => {
     if (blink === 0) return 1;
 
     blink -= 1;
     let l = 0;
     for (const v of currentList) {
       if (v === 0) {
-        if (lruCache.has(key(blink, 1))) l += lruCache.get(key(blink, 1));
-        else {
-          const sl = parseAndBreak(blink, [1]);
-          lruCache.set(key(blink, 1), sl);
-          l += sl;
-        }
+        l += DFS(blink, [1]);
         continue;
       }
+
       const s = `${v}`;
       if (s.length % 2 === 0) {
         const left = parseInt(s.slice(0, s.length / 2));
         const right = parseInt(s.slice(s.length / 2, s.length));
-
-        if (lruCache.has(key(blink, left))) l += lruCache.get(key(blink, left));
-        else {
-          const sl = parseAndBreak(blink, [left]);
-          lruCache.set(key(blink, left), sl);
-          l += sl;
-        }
-
-        if (lruCache.has(key(blink, right))) l += lruCache.get(key(blink, right));
-        else {
-          const sl = parseAndBreak(blink, [right]);
-          lruCache.set(key(blink, right), sl);
-          l += sl;
-        }
+        l += DFS(blink, [left]);
+        l += DFS(blink, [right]);
         continue;
       }
 
-      const nv = v * 2024;
-      if (lruCache.has(key(blink, nv))) l += lruCache.get(key(blink, nv));
-      else {
-        const sl = parseAndBreak(blink, [nv]);
-        lruCache.set(key(blink, nv), sl);
-        l += sl;
-      }
+      l += DFS(blink, [v * 2024]);
     }
+
+    lruCache.set(k, l);
     return l;
   };
 
@@ -96,7 +77,7 @@ function part2(input) {
   return { result };
 }
 
-const input = readInput(`d${DAY}-sample.txt`);
-//const input = readInput(`d${DAY}-input.txt`);
+//const input = readInput(`d${DAY}-sample.txt`);
+const input = readInput(`d${DAY}-puzzle-input.txt`);
 elapsedTime('Part 1', part1, input);
 elapsedTime('Part 2', part2, input);
