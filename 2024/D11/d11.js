@@ -38,6 +38,7 @@ function readInput(filename) {
 
 function part1(input, blink = 25) {
   const lruCache = new Map();
+
   const DFS = (blink, currentList) => {
     const k = JSON.stringify({ blink, currentList });
     if (lruCache.has(k)) return lruCache.get(k);
@@ -68,7 +69,7 @@ function part1(input, blink = 25) {
     return l;
   };
 
-  let result = parseAndBreak(blink, input[0]);
+  let result = DFS(blink, input[0]);
   return { result };
 }
 
