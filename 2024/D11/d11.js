@@ -37,7 +37,7 @@ function readInput(filename) {
 }
 
 function part1(input, blink = 25) {
-  const cache = new Map();
+  const lruCache = new Map();
   const key = (blink, value) => `${blink}:${value}`;
 
   const parseAndBreak = (blink, currentList) => {
@@ -47,10 +47,10 @@ function part1(input, blink = 25) {
     let l = 0;
     for (const v of currentList) {
       if (v === 0) {
-        if (cache.has(key(blink, 1))) l += cache.get(key(blink, 1));
+        if (lruCache.has(key(blink, 1))) l += lruCache.get(key(blink, 1));
         else {
           const sl = parseAndBreak(blink, [1]);
-          cache.set(key(blink, 1), sl);
+          lruCache.set(key(blink, 1), sl);
           l += sl;
         }
         continue;
@@ -60,27 +60,27 @@ function part1(input, blink = 25) {
         const left = parseInt(s.slice(0, s.length / 2));
         const right = parseInt(s.slice(s.length / 2, s.length));
 
-        if (cache.has(key(blink, left))) l += cache.get(key(blink, left));
+        if (lruCache.has(key(blink, left))) l += lruCache.get(key(blink, left));
         else {
           const sl = parseAndBreak(blink, [left]);
-          cache.set(key(blink, left), sl);
+          lruCache.set(key(blink, left), sl);
           l += sl;
         }
 
-        if (cache.has(key(blink, right))) l += cache.get(key(blink, right));
+        if (lruCache.has(key(blink, right))) l += lruCache.get(key(blink, right));
         else {
           const sl = parseAndBreak(blink, [right]);
-          cache.set(key(blink, right), sl);
+          lruCache.set(key(blink, right), sl);
           l += sl;
         }
         continue;
       }
 
       const nv = v * 2024;
-      if (cache.has(key(blink, nv))) l += cache.get(key(blink, nv));
+      if (lruCache.has(key(blink, nv))) l += lruCache.get(key(blink, nv));
       else {
         const sl = parseAndBreak(blink, [nv]);
-        cache.set(key(blink, nv), sl);
+        lruCache.set(key(blink, nv), sl);
         l += sl;
       }
     }
