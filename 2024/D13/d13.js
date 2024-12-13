@@ -72,8 +72,8 @@ function part1(input) {
     if (deter === 0) continue;
 
     //         By  -Bx           Px
-    // Matrix:            * Vector
-    //         -Ay   Ax           Py
+    // Matrix:          * Vector
+    //         -Ay   Ax          Py
     const op1 = B.y * P.x - B.x * P.y;
     const op2 = -A.y * P.x + A.x * P.y;
     if (op1 % deter !== 0 || op2 % deter !== 0) continue;
