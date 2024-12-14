@@ -46,8 +46,8 @@ const DIR4 = [
 function getNeighborPositions(input, x, y, dir) {
   const height = input.length;
   const width = input[0].length;
-  const pos = dir.map(([accX, accY]) => [x + accX, y + accY]);
-  return pos.filter(([x, y]) => !(x < 0 || x >= width || y < 0 || y >= height));
+  const pos = dir.map(([accX, accY]) => ({ x: x + accX, y: y + accY }));
+  return pos.filter(({ x, y }) => !(x < 0 || x >= width || y < 0 || y >= height));
 }
 
 const parseMapXY = (input, actionFct) => {
@@ -84,8 +84,8 @@ function part1(input) {
       }
 
       const neighborPos = getNeighborPositions(input, currentPos.x, currentPos.y, DIR4);
-      const validNeighborPos = neighborPos.filter((p) => input[p[1]][p[0]] === currentPos.v + 1);
-      validNeighborPos.forEach((p) => visited.push({ x: p[0], y: p[1], v: input[p[1]][p[0]] }));
+      const validNeighborPos = neighborPos.filter((p) => input[p.y][p.x] === currentPos.v + 1);
+      validNeighborPos.forEach(({ x, y }) => visited.push({ x, y, v: input[y][x] }));
     }
     result += uniqueEndPos.size;
   }
@@ -123,8 +123,8 @@ function part2(input) {
       }
 
       const neighborPos = getNeighborPositions(input, currentPos.x, currentPos.y, DIR4);
-      const validNeighborPos = neighborPos.filter((p) => input[p[1]][p[0]] === currentPos.v + 1);
-      validNeighborPos.forEach((p) => visited.push({ x: p[0], y: p[1], v: input[p[1]][p[0]] }));
+      const validNeighborPos = neighborPos.filter(({ x, y }) => input[y][x] === currentPos.v + 1);
+      validNeighborPos.forEach(({ x, y }) => visited.push({ x, y, v: input[y][x] }));
     }
     result += trailPos.size;
   }
@@ -132,7 +132,77 @@ function part2(input) {
   return { result };
 }
 
+function part1_DFS(input) {
+  // find the 0
+  const startPos = [];
+  const findStartPos = (x, y, elt) => {
+    if (elt === 0) startPos.push({ x, y, v: elt });
+    return {};
+  };
+  parseMapXY(input, findStartPos);
+
+  // implement DFS
+  const searchPath = (firstNode) => {
+    const uniqueEndPos = new Set();
+
+    const DFS = (node) => {
+      if (node.v === 9) {
+        uniqueEndPos.add(`${node.x}:${node.y}`);
+        return;
+      }
+
+      const neighborPos = getNeighborPositions(input, node.x, node.y, DIR4);
+      for (pos of neighborPos) {
+        pos.v = input[pos.y][pos.x];
+        if (pos.v === node.v + 1) DFS(pos);
+      }
+    };
+
+    DFS(firstNode);
+    return uniqueEndPos.size;
+  };
+
+  let result = startPos.reduce((r, pos) => r + searchPath(pos), 0);
+  return { result };
+}
+
+function part2_DFS(input) {
+  // find the 0
+  const startPos = [];
+  const findStartPos = (x, y, elt) => {
+    if (elt === 0) startPos.push({ x, y, v: elt });
+    return {};
+  };
+  parseMapXY(input, findStartPos);
+
+  // implement DFS
+  const searchPath = (firstNode) => {
+    const uniquePath = new Set();
+
+    const DFS = (node, currentPath) => {
+      if (node.v === 9) {
+        currentPath.push(node);
+        uniquePath.add(currentPath.reduce((t, n) => `${t},${n.x}:${n.y}`, ''));
+        return;
+      }
+
+      const neighborPos = getNeighborPositions(input, node.x, node.y, DIR4);
+      for (pos of neighborPos) {
+        pos.v = input[pos.y][pos.x];
+        if (pos.v === node.v + 1) DFS(pos, [...currentPath, pos]);
+      }
+    };
+
+    DFS(firstNode, [firstNode]);
+    return uniquePath.size;
+  };
+
+  let result = startPos.reduce((r, pos) => r + searchPath(pos), 0);
+  return { result };
+}
 //const input = readInput(`d${DAY}-sample.txt`);
-const input = readInput(`d${DAY}-input.txt`);
+const input = readInput(`d${DAY}-puzzle-input.txt`);
 elapsedTime('Part 1', part1, input);
+elapsedTime('Part 1_2', part1_DFS, input);
 elapsedTime('Part 2', part2, input);
+elapsedTime('Part 2_2', part2_DFS, input);

@@ -83,58 +83,8 @@ function part1(input) {
   }
 }
 
-function part2_bruteForce(input) {
-  const WIDTH = input[0].length;
-  const HEIGHT = input.length;
-
-  const isCircuit = (orgX, orgY, d) => {
-    let x = orgX;
-    let y = orgY;
-    const circuit = [];
-    while (true) {
-      const k = `${x}:${y}:${d}`;
-      if (circuit.includes(k)) return true;
-      circuit.push(k);
-      const [incX, incY] = DIR4_GEO[d];
-      x += incX;
-      y += incY;
-      if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return false;
-      if (input[y][x] === '#') {
-        d = turnRight[d];
-        x -= incX;
-        y -= incY;
-        continue;
-      }
-      // if (x === orgX && y === orgY) return true;
-    }
-  };
-
-  // find starting position of the guard
-  let posX, posY;
-  for (const [index, row] of input.entries()) {
-    posX = row.findIndex((e) => e === GUARD);
-    if (posX !== -1) {
-      posY = index;
-      break;
-    }
-  }
-
-  let circuitCount = 0;
-  for (let y = 0; y < HEIGHT; y++) {
-    for (let x = 0; x < WIDTH; x++) {
-      if ((input[y][x] === '#') | (input[y][x] === GUARD)) continue;
-
-      input[y][x] = '#';
-      if (isCircuit(posX, posY, UP)) circuitCount++;
-      input[y][x] = '.';
-    }
-  }
-
-  return { result: circuitCount };
-}
-
 // will place new blocks on the guard path only
-function part2_optimized(input) {
+function part2(input) {
   const WIDTH = input[0].length;
   const HEIGHT = input.length;
 
@@ -156,7 +106,6 @@ function part2_optimized(input) {
         y -= incY;
         continue;
       }
-      // if (x === orgX && y === orgY) return true;
     }
   };
 
@@ -190,7 +139,6 @@ function part2_optimized(input) {
 }
 
 //const input = readInput(`d${DAY}-sample.txt`);
-const input = readInput(`d${DAY}-input.txt`);
+const input = readInput(`d${DAY}-puzzle-input.txt`);
 elapsedTime('Part 1', part1, input);
-//elapsedTime('Part 2', part2, input);
-elapsedTime('part2_optimized', part2_optimized, input);
+elapsedTime('part 2', part2, input);
