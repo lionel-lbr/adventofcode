@@ -1,6 +1,6 @@
 /*
 Advent Of Code 2024
-Day 14: --- part 1 & 2
+Day 14: Restroom Redoubt part 1 & 2
 
 https://adventofcode.com/2024/day/14
 */
